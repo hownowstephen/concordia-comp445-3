@@ -93,6 +93,7 @@ int send_frame(SOCKET sock, SOCKADDR_IN sa, char* frame, int frame_size, int win
     int packet_size = frame_size / window_size; // Calculate the size of the packet
     char packet[packet_size];                   // Create the base packet buffer
     for(int i=0;i<window_size;i++){
+        cout << "Sending frame packet " << i << endl;
         strncpy(packet, frame+(i*packet_size), packet_size); // Copy the packet information into the packet
         send_packet(sock, sa, packet, packet_size, i);      // Send a tagged packet over the supplied socket
     }
@@ -111,7 +112,8 @@ int recv_frame(SOCKET sock, SOCKADDR_IN sa, char* frame, int frame_size, int win
     int* pid;                                   // Packet identifier
     int recv;                                   // Recv data from recv_packet
     for(int i=0;i<window_size;i++){
-        if((recv = recv_packet(sock, sa, packet, packet_size, i)) < 0){
+        cout << "Receiving frame packet " << i << endl;
+        if((recv = recv_packet(sock, sa, packet, packet_size, i)) < 1){
             cout << "Received the wrong packet, expecting " << i << " got " << recv << endl;
             memset(packet,0,packet_size);   // Zero the buffer
             packet = "NAK";
