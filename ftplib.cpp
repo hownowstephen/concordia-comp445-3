@@ -73,15 +73,16 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
             throw "Recv failed";
         }else{
             cout << "Received packet " << packet << endl;
-            int* packet_id;
-            memset(buffer,0,size); // Clear the buffer to prepare to receive data
-            split_packet(packet, size, buffer, packet_id);
+            int packet_id;
+            /*memset(buffer,0,size); // Clear the buffer to prepare to receive data
+            split_packet(packet, size, buffer, &packet_id);
             cout << buffer << " ID " << packet_id << endl;
             if(pid == *packet_id){
                 return ibytesrecv;  // Return the amount of data received
             }else{
                 return -1 * (*packet_id);   // Return the negation of the packet id actually received
-            }
+            }*/
+            return ibytesrecv;
         }
     }else{
         return 0;
