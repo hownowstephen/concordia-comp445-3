@@ -91,8 +91,13 @@ int main(void){
 
             cout << "Starting with server packet " << server_num << " and client packet " << client_num << endl;*/
 
-            // Receive header data from the client
-            recv_packet(server_socket,sa_out,buffer,RAWBUF_SIZE,0);
+            try{
+                // Receive header data from the client
+                recv_packet(server_socket, sa_out, buffer, RAWBUF_SIZE, 0);
+                // Catch and print any errors
+            } catch(const char * str){
+                cerr << str << WSAGetLastError() << endl;
+            }
 
             // Extract data from the headers
             char cusername[128], filename[128], direction[3];
