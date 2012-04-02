@@ -77,6 +77,8 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
                 return -1 * (*packet_id);   // Return the negation of the packet id actually received
             }
         }
+    }else{
+        return recv_packet(sock, sa, buffer, size, pid);
     }
 }
 
