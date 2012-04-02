@@ -53,28 +53,32 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
     int filesize;
     int size = 0, sent = 0;     // Trace variables
 
-    FILE* send_file = fopen(filename, "rb");    // open the file
+    FILE* send_file;
 
-    // Determines the file size
-    fseek(send_file, 0L, SEEK_END);
-    filesize = ftell(send_file);
-    fseek(send_file, 0L, SEEK_SET);
+    if((send_file = fopen(filename, "rb")) != NULL){    // open the file
 
-    cout << "File size: " << filesize << endl;
+        // Determines the file size
+        fseek(send_file, 0L, SEEK_END);
+        filesize = ftell(send_file);
+        fseek(send_file, 0L, SEEK_SET);
 
-    strncpy(buffer, "SIZ", 3);
-    memcpy(buffer + (3 * sizeof(char)), &filesize, sizeof(int)); // Add the size of the element to the buffer
-    send_packet(s,sa,buffer,buffer_size,WINDOW_SIZE);
+        cout << "File size: " << filesize << endl;
 
-    cout << "Sending..." << buffer << endl;
+        strncpy(buffer, "SIZ", 3);
+        memcpy(buffer + (3 * sizeof(char)), &filesize, sizeof(int)); // Add the size of the element to the buffer
+        send_packet(s,sa,buffer,buffer_size,WINDOW_SIZE);
 
-    // Loop through the file and stream in chunks based on the buffer size
-    while ( !feof(send_file) ){
-        fread(buffer, 0, sizeof(buffer), send_file);
-        send_frame(s,sa,buffer,sizeof(buffer),0);
+        cout << "Sending..." << buffer << endl;
+
+        // Loop through the file and stream in chunks based on the buffer size
+        while ( !feof(send_file) ){
+            fread(buffer, 0, sizeof(buffer), send_file);
+            cout << "sending frame" << endl;
+            send_frame(s,sa,buffer,sizeof(buffer),0);
+        }
+
+        fclose(send_file);
     }
-
-    fclose(send_file);
 
 }
 
