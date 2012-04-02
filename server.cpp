@@ -100,6 +100,13 @@ int main(void){
 
                 // Print out the information
                 cout << "Client " << cusername << " requesting to " << direction << " file " << filename << endl;
+
+                // Respond to the client request
+                if(!strcmp(direction,GET)){
+                    put(server_socket, sa_out, "SERVER", filename);
+                }else if(!strcmp(direction,PUT)){
+                    get(server_socket, sa_out, "SERVER", filename);
+                }else   throw "Requested protocol does not exist";
             }
         }
 

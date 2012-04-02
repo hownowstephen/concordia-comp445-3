@@ -39,7 +39,6 @@ int send_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
     int from = sizeof(sa);  // Size of the sockaddr
     char packet[packet_size];
     make_packet(packet, buffer, size, pid); // Convert to a tagged packet
-    cout << "SENDING " << packet_size << " " << packet << endl;
     if ((ibytessent = sendto(sock,packet,packet_size,0,(SOCKADDR*)&sa, from)) == SOCKET_ERROR){
         throw "Send failed"; 
     }else{
@@ -65,7 +64,6 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
 
     FD_ZERO(&readfds);
     FD_SET(sock,&readfds);
-    cout << "Receiving " << packet_size << " bytes" << endl;
     if((result=select(1,&readfds,NULL,NULL,tp))==SOCKET_ERROR) throw "Timer error!";
     else if(result > 0){
         memset(packet,0,packet_size);
