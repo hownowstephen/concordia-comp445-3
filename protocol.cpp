@@ -26,6 +26,10 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
     //if(!strncmp())
 
+    memcpy(filesize, buffer + (3 * sizeof(char)), sizeof(int));
+
+    cout << "File size: " << filesize << endl;
+
     // Receive the file
     while(count < filesize){
         if(filesize - count >= (buffer_size)) size = (sizeof(buffer) / sizeof(char)) - sizeof(char); // Read a full buffer
@@ -59,7 +63,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
     cout << "File size: " << filesize << endl;
 
     strncpy(buffer, "SIZ", 3);
-    memset(buffer + (4 * sizeof(char)), filesize, sizeof(int)); // Add the size of the element to the buffer
+    memset(buffer + (3 * sizeof(char)), filesize, sizeof(int)); // Add the size of the element to the buffer
     send_packet(s,sa,buffer,buffer_size,WINDOW_SIZE);
 
     cout << "Sending..." << buffer << endl;
