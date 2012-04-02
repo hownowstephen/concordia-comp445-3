@@ -38,7 +38,7 @@ int send_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
     char packet[packet_size];
     make_packet(packet, buffer, size, pid); // Convert to a tagged packet
     cout << "SENDING " << packet << endl;
-    if ((ibytessent = sendto(sock,packet,sizeof(packet_size),0,(SOCKADDR*)&sa, &from)) == SOCKET_ERROR){
+    if ((ibytessent = sendto(sock,packet,sizeof(packet_size),0,(SOCKADDR*)&sa, from)) == SOCKET_ERROR){
         throw "Send failed"; 
     }else{
         memset(buffer,0,size);  // Zero the buffer
