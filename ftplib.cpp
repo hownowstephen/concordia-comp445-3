@@ -5,6 +5,8 @@
 
 using namespace std;
 
+#define TIMEOUT_USEC 300000
+
 void log_transaction(char* message, FILE* logfile){
 
 }
@@ -56,17 +58,23 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
     int packet_size = size + sizeof(int);
     memset(buffer,0,size); // Clear the buffer to prepare to receive data
     char packet[packet_size];
-    if((ibytesrecv = recvfrom(sock, packet, packet_size,0,(SOCKADDR*)&sa, &from)) == SOCKET_ERROR){
-        throw "Recv failed";
-    }else{
-        cout << "Received packet " << packet << endl;
-        int* packet_id;
-        split_packet(packet, size, buffer, packet_id);
-        cout << buffer << " ID " << packet_id << endl;
-        if(pid == *packet_id){
-            return ibytesrecv;  // Return the amount of data received
+    struct timeval *tp=new timeval;   // Timeout struct
+    tp->tv_sec=0;                     // Set current time
+    tp->tv_usec=TIMEOUT_USEC;         // Set timeout time
+    if((result=select(1,&readfds,NULL,NULL,tp))==SOCKET_ERROR) throw "Timer error!";
+    else if(result > 0){
+        if((ibytesrecv = recvfrom(sock, packet, packet_size,0,(SOCKADDR*)&sa, &from)) == SOCKET_ERROR){
+            throw "Recv failed";
         }else{
-            return -1 * (*packet_id);   // Return the negation of the packet id actually received
+            cout << "Received packet " << packet << endl;
+            int* packet_id;
+            split_packet(packet, size, buffer, packet_id);
+            cout << buffer << " ID " << packet_id << endl;
+            if(pid == *packet_id){
+                return ibytesrecv;  // Return the amount of data received
+            }else{
+                return -1 * (*packet_id);   // Return the negation of the packet id actually received
+            }
         }
     }
 }
