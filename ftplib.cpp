@@ -13,20 +13,18 @@ void log_transaction(char* message, FILE* logfile){
  * Create a packet with an identifier tag
  * Takes a buffer of size packet_size and generates a packet of size packet_size + sizeof(int)
  */
-char* make_packet(char* packet, int packet_size, int number){
-    char raw_packet[packet_size + sizeof(int)]; // Create a buffer to store the full packet
-    memcpy(raw_packet, packet, packet_size);    // Copy the base packet into the full packet
-    memcpy(raw_packet + packet_size, &number, sizeof( int ) );  // Copy the tag into the packet
-    return raw_packet;
+void make_packet(char* buffer, char* packet, int packet_size, int number){
+    memcpy(buffer, packet, packet_size);    // Copy the base packet into the full packet
+    memcpy(buffer + packet_size, number, sizeof( int ) );  // Copy the tag into the packet
 }
 
 /**
  * Split a packet into packet name and identifier
  * Takes a packet of size packet_size + sizeof(int) and extracts a packet (size packet_size) and its integer identifier
  */
-void split_packet(char* raw_packet, int packet_size, char* packet, int* number){
-    memcpy(packet, raw_packet, packet_size);                // Extract the actual packet data
-    memcpy(number, raw_packet + packet_size, sizeof(int));  // Extract the packet identifier
+void split_packet(char* buffer, int packet_size, char* packet, int* number){
+    memcpy(packet, buffer, packet_size);                // Extract the actual packet data
+    memcpy(number, buffer + packet_size, sizeof(int));  // Extract the packet identifier
 }
 
 /**
@@ -35,8 +33,9 @@ void split_packet(char* raw_packet, int packet_size, char* packet, int* number){
  */
 int send_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
     int ibytessent = 0;
-    char* realbuf = make_packet(buffer, size, pid); // Convert to a tagged packet
-    if ((ibytessent = send(sock,buffer,size + sizeof(int),0)) == SOCKET_ERROR){ 
+    char packet[packet_size + sizeof(int)];
+    make_packet(packet, buffer, size, pid); // Convert to a tagged packet
+    if ((ibytessent = send(sock,packet,sizeof(packet),0)) == SOCKET_ERROR){ 
         throw "Send failed"; 
     }else{
         memset(buffer,0,size);   // Zero the buffer
@@ -51,12 +50,12 @@ int send_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
 int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
     int ibytesrecv = 0;
     memset(buffer,0,size); // Clear the buffer to prepare to receive data
-    char realbuf[size + sizeof(int)];
-    if((ibytesrecv = recv(sock,realbuf,size + sizeof(int),0)) == SOCKET_ERROR){
+    char packet[size + sizeof(int)];
+    if((ibytesrecv = recv(sock,packet,size + sizeof(int),0)) == SOCKET_ERROR){
         throw "Recv failed";
     }else{
         int* packet_id;
-        split_packet(realbuf, size, buffer, packet_id);
+        split_packet(packet, size, buffer, packet_id);
         if(pid == *packet_id){
             return ibytesrecv;  // Return the amount of data received
         }else{
