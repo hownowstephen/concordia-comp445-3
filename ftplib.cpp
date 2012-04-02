@@ -37,7 +37,7 @@ int send_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
     if ((ibytessent = send(sock,buffer,size + sizeof(int),0)) == SOCKET_ERROR){ 
         throw "Send failed"; 
     }else{
-        memset(buffer,0,buffer_size);   // Zero the buffer
+        memset(buffer,0,size);   // Zero the buffer
         return ibytessent;              // Return the number of sent bytes
     }   
 }
@@ -48,7 +48,7 @@ int send_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
  */
 int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
     int ibytesrecv = 0;
-    memset(buffer,0,buffer_size); // Clear the buffer to prepare to receive data
+    memset(buffer,0,size); // Clear the buffer to prepare to receive data
     char realbuf[size + sizeof(int)];
     if((ibytesrecv = recv(sock,realbuf,size + sizeof(int),0)) == SOCKET_ERROR){
         throw "Recv failed";

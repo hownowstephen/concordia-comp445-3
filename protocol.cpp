@@ -22,7 +22,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
     FILE* recv_file = fopen(filename, "wb");
 
-    recv_packet(s, sa, buffer, PACKET_SIZE); // Receives the filesize negotiation packet
+    recv_packet(s, sa, buffer, PACKET_SIZE, 0); // Receives the filesize negotiation packet
 
     //if(!strncmp())
 
@@ -67,7 +67,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
     // Loop through the file and stream in chunks based on the buffer size
     while ( !feof(send_file) ){
         fread(buffer, 0, sizeof(buffer), send_file);
-        send_frame(s,sa,buffer,);
+        send_frame(s,sa,buffer,0);
     }
 
     fclose(send_file);
