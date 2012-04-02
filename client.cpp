@@ -106,14 +106,6 @@ int main(void){
             sprintf(buffer,HEADER, cusername, direction, filename); 
             send_packet(client_socket,sa_out,buffer,RAWBUF_SIZE,100);
 
-            // Perform a get request
-            if(!strcmp(direction,GET)){
-                get(client_socket, sa_out, cusername, filename);
-                
-            }else if(!strcmp(direction,PUT)){
-                put(client_socket, sa_out, cusername, filename);
-            }
-
         }else{
             throw "The method you requested does not exist, use get or put";
         }
