@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+using namespace std;
+
 void log_transaction(char* message, FILE* logfile){
 
 }
