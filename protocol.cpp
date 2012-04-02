@@ -67,7 +67,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
     // Loop through the file and stream in chunks based on the buffer size
     while ( !feof(send_file) ){
         fread(buffer, 0, sizeof(buffer), send_file);
-        send_frame(s,sa,buffer,0);
+        send_frame(s,sa,buffer,sizeof(buffer),0);
     }
 
     fclose(send_file);

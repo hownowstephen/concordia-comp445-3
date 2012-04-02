@@ -106,7 +106,7 @@ int main(void){
             */
             // Send client headers
             sprintf(buffer,HEADER, cusername, direction, filename); 
-            send_packet(client_socket,sa_out,buffer,RAWBUF_SIZE);
+            send_packet(client_socket,sa_out,buffer,RAWBUF_SIZE,0);
 
             // Perform a get request
             if(!strcmp(direction,GET)){
