@@ -21,26 +21,25 @@ clean:
 
 update: server client router
 
-server: server.o ftplib.o
-	$(CPP) $(LINKSRV) -o $(BINSRV) $(LIBS)
-
-client: client.o ftplib.o
+client: client.o libraries
 	$(CPP) $(LINKCLI) -o $(BINCLI) $(LIBS)
-
-router: router.o
-	$(CPP) $(LINKRT) -o $(BINRT) $(LIBS)
 
 client.o: client.cpp
 	$(CPP) -c client.cpp -o $(LINKCLI) $(LIBS)
 
+server: server.o libraries
+	$(CPP) $(LINKSRV) -o $(BINSRV) $(LIBS)
+
 server.o: server.cpp
 	$(CPP) -c server.cpp -o $(LINKSRV) $(LIBS)
 
-ftplib.o: ftplib.cpp
-	$(CPP) -c ftplib.cpp -o ftplib.o $(LIBS)
-
-protocol.o: protocol.cpp
-	$(CPP) -c protocol.cpp -o protocol.o $(LIBS)
+router: router.o
+	$(CPP) $(LINKRT) -o $(BINRT) $(LIBS)
 
 router.o: router.cpp
 	$(CPP) -c router.cpp -o router.o $(LIBS)
+
+libraries: ftplib.cpp socketlib.cpp protocol.cpp
+	$(CPP) -c ftplib.cpp -o ftplib.o $(LIBS)
+	$(CPP) -c socketlib.cpp -o socketlib.o $(LIBS)
+	$(CPP) -c protocol.cpp -o protocol.o $(LIBS)

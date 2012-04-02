@@ -1,16 +1,11 @@
 #include <iostream>
-
-#define ROUTER_PORT1 7000   // router port number 1 (server)
-#define ROUTER_PORT2 7001   // router port number 2 (client)
-#define PEER_PORT1  5000    // peer port number 1 (server)
-#define PEER_PORT2  5001    // peer port number 2 (client)
-#define FRAME_SIZE 80      // Size (in bytes) of each packet
-#define WINDOW_SIZE 1
+#include <winsock.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 void log_transaction(char* message, FILE* logfile){
 
 }
-
 
 /**
  * Create a packet with an identifier tag
@@ -58,8 +53,13 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
     if((ibytesrecv = recv(sock,realbuf,size + sizeof(int),0)) == SOCKET_ERROR){
         throw "Recv failed";
     }else{
-
-        return ibytesrecv;  // Return the amount of data received
+        int* packet_id;
+        split_packet(realbuf, size, buffer, packet_id);
+        if(pid == *packet_id){
+            return ibytesrecv;  // Return the amount of data received
+        }else{
+            return -1 * (*packet_id);   // Return the negation of the packet id actually received
+        }
     }
 }
 
@@ -70,8 +70,8 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
 int send_frame(SOCKET sock, SOCKADDR_IN sa, char* frame, int frame_size, int window_size, int ack_id){
     int packet_size = frame_size / window_size; // Calculate the size of the packet
     char packet[packet_size];                   // Create the base packet buffer
-    for(int i=0;i<window_size;i++){             // Loop over the window and send each packet
-        strncpy(packet, from+(i*packet_size), packet_size); // Copy the packet information into the packet
+    for(int i=0;i<window_size;i++){
+        strncpy(packet, frame+(i*packet_size), packet_size); // Copy the packet information into the packet
         send_packet(sock, sa, packet, packet_size, i);      // Send a tagged packet over the supplied socket
     }
     char ack[packet_size + sizeof(int)];        // Create a buffer for the ack/nack
@@ -80,14 +80,24 @@ int send_frame(SOCKET sock, SOCKADDR_IN sa, char* frame, int frame_size, int win
 
 /**
  * Receive an entire frame over a udp socket
+ * Loops over the expected packet ids and performs a recv
  */
 int recv_frame(SOCKET sock, SOCKADDR_IN sa, char* frame, int frame_size, int window_size){
     int packet_size = frame_size / window_size; // Calculate the size of the packet
-    char raw_packet[packet_size];   // Recv packet buffer
-    char* packet;                   // Packet buffer
-    int* pid;                       // Packet identifier
+    char raw_packet[packet_size];               // Recv packet buffer
+    char* packet;                               // Packet buffer
+    int* pid;                                   // Packet identifier
+    int recv;                                   // Recv data from recv_packet
     for(int i=0;i<window_size;i++){
-        recv_packet(sock, sa, packet, packet_size);
+        if((recv = recv_packet(sock, sa, packet, packet_size, i)) < 0){
+            cout << "Received the wrong packet, expecting " << i << " got " << recv << endl;
+            memset(packet,0,packet_size);   // Zero the buffer
+            packet = "NAK";
+            memset(packet + (3*sizeof(char)), abs(recv), sizeof(int)); // Send the NAK with the packet ID
+            send_packet(sock, sa, "NAK", packet_size, 0);
+        }else{
+            strncpy(frame+(i*packet_size), packet, packet_size);    // Copy the buffer into the frame output
+        }
     }
-    send_packet(sock, sa, "ACK", packet_size, 0);
+    send_packet(sock, sa, "ACK", packet_size, 0); // Send the ACK for this frame
 }
