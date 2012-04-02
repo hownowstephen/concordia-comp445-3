@@ -9,6 +9,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 using namespace std;
 
@@ -18,7 +19,6 @@ using namespace std;
 FILE* tracefile = fopen("client.log","w");
 
 int main(void){
-    set_trace(tracefile,"Client");
     srand ( time(NULL) );
 
     //socket data types
