@@ -33,7 +33,7 @@ void split_packet(char* buffer, int packet_size, char* packet, int* number){
  */
 int send_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
     int ibytessent = 0;
-    char packet[packet_size + sizeof(int)];
+    char packet[size + sizeof(int)];
     make_packet(packet, buffer, size, pid); // Convert to a tagged packet
     if ((ibytessent = send(sock,packet,sizeof(packet),0)) == SOCKET_ERROR){ 
         throw "Send failed"; 
