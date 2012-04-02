@@ -53,7 +53,9 @@ int send_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
  * Accepts a tagged packet over a socket and converts to packet data and tag
  */
 int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
-    int ibytesrecv, result, from = sizeof(sa), packet_size = size + sizeof(int);
+    int ibytesrecv, result;
+    int from = sizeof(sa);
+    int packet_size = size + sizeof(int);
     char packet[packet_size];
     struct timeval *tp=new timeval;   // Timeout struct
     tp->tv_sec=0;                     // Set current time
