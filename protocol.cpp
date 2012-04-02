@@ -63,7 +63,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
     cout << "File size: " << filesize << endl;
 
     strncpy(buffer, "SIZ", 3);
-    memset(buffer + (3 * sizeof(char)), filesize, sizeof(int)); // Add the size of the element to the buffer
+    memcpy(buffer + (3 * sizeof(char)), &filesize, sizeof(int)); // Add the size of the element to the buffer
     send_packet(s,sa,buffer,buffer_size,WINDOW_SIZE);
 
     cout << "Sending..." << buffer << endl;
