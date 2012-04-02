@@ -15,7 +15,7 @@ void log_transaction(char* message, FILE* logfile){
  */
 void make_packet(char* buffer, char* packet, int packet_size, int number){
     memcpy(buffer, packet, packet_size);    // Copy the base packet into the full packet
-    memcpy(buffer + packet_size, number, sizeof( int ) );  // Copy the tag into the packet
+    memcpy(buffer + packet_size, &number, sizeof( int ) );  // Copy the tag into the packet
 }
 
 /**
