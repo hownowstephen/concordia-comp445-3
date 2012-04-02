@@ -20,6 +20,7 @@ clean:
 	${RM} $(OBJ) $(BINSRV) $(BINCLI)
 
 update: server client router
+	git pull
 
 client: client.o libraries
 	$(CPP) $(LINKCLI) -o $(BINCLI) $(LIBS)
