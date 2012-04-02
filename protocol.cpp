@@ -7,6 +7,10 @@
 #define PACKET_SIZE 80      // Size (in bytes) of each packet
 #define WINDOW_SIZE 1
 
+#define GET "get"           // Method name for GET requests
+#define PUT "put"           // Method name for PUT requests
+#define HEADER "%s\t%s\t%s" // Format string for headers
+
 /**
  * GET function
  * Performs the receiving half of a request
@@ -16,7 +20,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
     char buffer[buffer_size];
     int count, filesize, size;
 
-    FILE* recv_file = fopen(filename, 'wb');
+    FILE* recv_file = fopen(filename, "wb");
 
     recv_packet(s, sa, buffer, PACKET_SIZE); // Receives the filesize negotiation packet
 
@@ -31,6 +35,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
         count += sizeof(buffer);
         cout << "Received " << count << " of " << filesize << " bytes" << endl;
     }
+    fclose(recv_file);
 }
 
 /**
@@ -44,7 +49,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
     int filesize;
     int size = 0, sent = 0;     // Trace variables
 
-    FILE* send_file = fopen(filename, 'rb');    // open the file
+    FILE* send_file = fopen(filename, "rb");    // open the file
 
     // Determines the file size
     fseek(send_file, 0L, SEEK_END);
@@ -61,9 +66,11 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
     // Loop through the file and stream in chunks based on the buffer size
     while ( !feof(send_file) ){
-        fread(buffer, 0, sizeof(buffer));
+        fread(buffer, 0, sizeof(buffer), send_file);
         send_frame(s,sa,buffer,);
     }
+
+    fclose(send_file);
 
 }
 
