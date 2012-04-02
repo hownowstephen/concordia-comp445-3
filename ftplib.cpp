@@ -62,6 +62,7 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
         cout << "Received packet " << packet << endl;
         int* packet_id;
         split_packet(packet, size, buffer, packet_id);
+        cout << buffer << " ID " << packet_id << endl;
         if(pid == *packet_id){
             return ibytesrecv;  // Return the amount of data received
         }else{
