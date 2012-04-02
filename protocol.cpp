@@ -1,5 +1,4 @@
 #include "ftplib.cpp"
-#include "socketlib.cpp"
 
 #define ROUTER_PORT1 7000   // router port number 1 (server)
 #define ROUTER_PORT2 7001   // router port number 2 (client)
@@ -19,7 +18,9 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, FILE* logfil
 
     FILE* recv_file = fopen(filename, 'wb');
 
-    recv_packet();
+    recv_packet(s, sa, buffer, PACKET_SIZE); // Receives the filesize negotiation packet
+
+    if(!strncmp())
 
     // Receive the file
     while(count < filesize){
@@ -52,7 +53,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, FILE* logfil
 
     buffer = "SIZ";
     memset(buffer + (4 * sizeof(char)), filesize, sizeof(int)); // Add the size of the element to the buffer
-    send_packet(s,sa,buffer);
+    send_packet(s,sa,buffer,PACKET_SIZE);
 
     cout << "Sending..." << buffer << endl;
 

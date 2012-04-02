@@ -15,12 +15,12 @@
 using namespace std;
 
 #include "protocol.cpp"
+#include "socketlib.cpp"
 
 FILE* tracefile = fopen("server.log","w");
 
 int main(void){
     /* Main function, performs the listening loop for client connections */
-    set_trace(tracefile,"Server");
     srand ( time(NULL) );
 
     SOCKET server_socket;       // Global listening socket
@@ -50,11 +50,11 @@ int main(void){
         // Server will block waiting for new client requests indefinitely
         while(1){
 
-            char szbuffer[BUFFER_SIZE]; // buffer object
+            char buffer[BUFFER_SIZE]; // buffer object
             int server_num = 0;         // client packet tracer
             int client_num = 0;         // server packet tracer
 
-            int selected = rand() % 256;
+            /*int selected = rand() % 256;
             int received, verify;
 
             int progress = 0;
@@ -63,27 +63,28 @@ int main(void){
                 client_num = 3;
                 // Receive a random number from the client
 
-                if(recvbuf(server_socket,sa_out,&client_num,szbuffer, BUFFER_SIZE, true) < 0){
+                if(recvbuf(server_socket,sa_out,&client_num,buffer, BUFFER_SIZE, true) < 0){
                 if(progress < 1) continue;
                 }else progress = 1;
-                cout << "Received " << szbuffer << endl;
-                sscanf(szbuffer,"RAND %d",&received);
+                cout << "Received " << buffer << endl;
+                sscanf(buffer,"RND %d",&received);
+
 
                 server_num = 1;
                 // Send acknowledgement to the client along with our random number
-                sprintf(szbuffer,"RAND %d %d",received,selected);
-                cout << "Sending " << szbuffer << endl;
-                if(sendbuf(server_socket, sa_out, &server_num, szbuffer, BUFFER_SIZE, true) < 0){
+                sprintf(buffer,"RAND %d %d",received,selected);
+                cout << "Sending " << buffer << endl;
+                if(sendbuf(server_socket, sa_out, &server_num, buffer, BUFFER_SIZE, true) < 0){
                 if(progress < 2) continue;
                 }else    progress = 2;
 
                 client_num = 2;
                 // Finally wait for a response from the client with the number
-                if(recvbuf(server_socket, sa_out, &client_num, szbuffer, BUFFER_SIZE, true) < 0){
+                if(recvbuf(server_socket, sa_out, &client_num, buffer, BUFFER_SIZE, true) < 0){
                 if(progress < 3) continue;
                 }else    progress = 3;
-                cout << "Received " << szbuffer << endl;
-                sscanf(szbuffer,"RAND %d",&verify);
+                cout << "Received " << buffer << endl;
+                sscanf(buffer,"RAND %d",&verify);
 
                 if(progress == 3) break;
             }
@@ -91,25 +92,23 @@ int main(void){
             client_num = received & 0x1;
             server_num = selected & 0x1;
 
-            cout << "Starting with server packet " << server_num << " and client packet " << client_num << endl;
+            cout << "Starting with server packet " << server_num << " and client packet " << client_num << endl;*/
 
             // Receive header data from the client
-            recvbuf(server_socket,sa_out,&client_num,szbuffer);
+            recvbuf(server_socket,sa_out,&client_num,buffer);
 
             // Extract data from the headers
             char cusername[128], filename[128], direction[3];
-            sscanf(szbuffer,HEADER,cusername,direction,filename);
+            sscanf(buffer,HEADER,cusername,direction,filename);
 
             // Print out the information
             cout << "Client " << cusername << " requesting to " << direction << " file " << filename << endl;
 
             // Respond to the client request
             if(!strcmp(direction,GET)){
-                set_trace(tracefile,SEND);
-                put(server_socket, sa_out, PUT, filename, client_num);
+                put(server_socket, sa_out, "SERVER", filename);
             }else if(!strcmp(direction,PUT)){
-                set_trace(tracefile,RECV);
-                get(server_socket, sa_out, GET, filename, client_num);
+                get(server_socket, sa_out, "SERVER", filename);
             }else   throw "Requested protocol does not exist";
         }
 

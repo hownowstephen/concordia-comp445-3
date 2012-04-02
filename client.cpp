@@ -13,6 +13,7 @@
 using namespace std;
 
 #include "protocol.cpp"
+#include "socketlib.cpp"
 
 FILE* tracefile = fopen("client.log","w");
 
@@ -24,7 +25,7 @@ int main(void){
     SOCKET client_socket;   // Client socket
     SOCKADDR_IN sa_out;      // fill with server info, IP, port
 
-    char szbuffer[BUFFER_SIZE]; // Buffer
+    char buffer[BUFFER_SIZE]; // Buffer
 
     WSADATA wsadata;                                    // WSA connection
     char router[11];                                    // Host data
@@ -61,7 +62,7 @@ int main(void){
             // Retrieve the local user name
             GetUserName(cusername,&dwusername);
 
-            int selected = rand() % 256;
+            /*int selected = rand() % 256;
             int received, verify;
 
             int client_num = 0; // Client packet number
@@ -73,25 +74,25 @@ int main(void){
 
                 client_num = 3;
                 // Send acknowledgement to the client along with our random number
-                sprintf(szbuffer,"RAND %d",selected);
-                cout << "Sending " << szbuffer << endl;
-                if(sendbuf(client_socket, sa_out, &client_num, szbuffer, BUFFER_SIZE, true) < 0){
+                sprintf(buffer,"RAND %d",selected);
+                cout << "Sending " << buffer << endl;
+                if(sendbuf(client_socket, sa_out, &client_num, buffer, BUFFER_SIZE, true) < 0){
                 if(progress < 1) continue;
                 }else progress = 1;
 
                 server_num = 1;
                 // Finally wait for a response from the client with the number
-                if(recvbuf(client_socket, sa_out, &server_num, szbuffer, BUFFER_SIZE, true) < 0){
+                if(recvbuf(client_socket, sa_out, &server_num, buffer, BUFFER_SIZE, true) < 0){
                 if(progress < 2) continue;
                 }else progress = 2;
-                cout << "Received " << szbuffer << endl;
-                sscanf(szbuffer,"RAND %d %d",&verify,&received);
+                cout << "Received " << buffer << endl;
+                sscanf(buffer,"RAND %d %d",&verify,&received);
 
                 client_num = 2;
                 // Send acknowledgement to the client along with our random number
-                sprintf(szbuffer,"RAND %d",received);
-                cout << "Sending " << szbuffer << endl;
-                if(sendbuf(client_socket, sa_out, &client_num, szbuffer, BUFFER_SIZE, true) < 0){
+                sprintf(buffer,"RAND %d",received);
+                cout << "Sending " << buffer << endl;
+                if(sendbuf(client_socket, sa_out, &client_num, buffer, BUFFER_SIZE, true) < 0){
                 if(progress < 3) continue;
                 }else progress = 3;
 
@@ -104,17 +105,15 @@ int main(void){
             cout << "Starting with server packet " << server_num << " and client packet " << client_num << endl;
 
             // Send client headers
-            sprintf(szbuffer,HEADER, cusername, direction, filename); 
-            sendbuf(client_socket,sa_out,&client_num,szbuffer);
+            sprintf(buffer,HEADER, cusername, direction, filename); 
+            sendbuf(client_socket,sa_out,&client_num,buffer);*/
 
             // Perform a get request
             if(!strcmp(direction,GET)){
-                set_trace(tracefile,RECV);
-                get(client_socket, sa_out, cusername, filename, client_num);
+                get(client_socket, sa_out, cusername, filename);
                 
             }else if(!strcmp(direction,PUT)){
-                set_trace(tracefile,SEND);
-                put(client_socket, sa_out, cusername, filename, client_num);
+                put(client_socket, sa_out, cusername, filename);
             }
 
         }else{
