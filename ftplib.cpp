@@ -56,7 +56,7 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
     int ibytesrecv, result;
     int from = sizeof(sa);
     int packet_size = size + sizeof(int);
-    char packet[packet_size]
+    char packet[packet_size];
     fd_set readfds;                   // Used by select to manage file descriptor multiplexing
 
     struct timeval *tp=new timeval;   // Timeout struct
