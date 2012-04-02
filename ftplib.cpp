@@ -2,6 +2,7 @@
 #include <winsock.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <Math.h>
 
 using namespace std;
 
@@ -90,7 +91,7 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
  * Loops over supplied char* buffer and sends the frame in a series of packets
  */
 int send_frame(SOCKET sock, SOCKADDR_IN sa, char* frame, int frame_size, int window_size){
-    int packet_size = frame_size / window_size; // Calculate the size of the packet
+    int packet_size = ceil(frame_size / window_size); // Calculate the size of the packet
     char packet[packet_size];                   // Create the base packet buffer
     for(int i=0;i<window_size;i++){
         cout << "Sending frame packet " << i << endl;
