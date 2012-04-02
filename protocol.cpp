@@ -57,12 +57,10 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, FILE* logfil
 
     cout << "Sending..." << buffer << endl;
 
-    // Send the file
-    int size = 0, sent = 0;
     // Loop through the file and stream in chunks based on the buffer size
     while ( !feof(send_file) ){
-        fread(szbuffer, 0, sizeof(buffersend_file);
-        send_frame(s,sa,&packet_num,szbuffer);
+        fread(buffer, 0, sizeof(buffer));
+        send_frame(s,sa,&packet_num,buffer);
     }
 
 }
