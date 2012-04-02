@@ -34,10 +34,11 @@ void split_packet(char* buffer, int packet_size, char* packet, int* number){
 int send_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
     int ibytessent = 0;
     int packet_size = size + sizeof(int);
+    int from = sizeof(sa);  // Size of the sockaddr
     char packet[packet_size];
     make_packet(packet, buffer, size, pid); // Convert to a tagged packet
     cout << "SENDING " << packet << endl;
-    if ((ibytessent = send(sock,buffer,size,0)) == SOCKET_ERROR){ 
+    if ((ibytessent = sendto(sock,packet,sizeof(packet_size),0,(SOCKADDR*)&sa, &from)) == SOCKET_ERROR){
         throw "Send failed"; 
     }else{
         memset(buffer,0,size);  // Zero the buffer
@@ -51,9 +52,10 @@ int send_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
  */
 int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
     int ibytesrecv = 0;
+    int from = sizeof(sa);  // Size of the sockaddr
     memset(buffer,0,size); // Clear the buffer to prepare to receive data
     char packet[size + sizeof(int)];
-    if((ibytesrecv = recv(sock,packet,size + sizeof(int),0)) == SOCKET_ERROR){
+    if((ibytesrecv = recvfrom(sock,packet,size + sizeof(int),0,(SOCKADDR*)&sa, &from)) == SOCKET_ERROR){
         throw "Recv failed";
     }else{
         int* packet_id;
