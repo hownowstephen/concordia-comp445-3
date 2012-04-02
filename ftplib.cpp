@@ -91,11 +91,8 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
  * Loops over supplied char* buffer and sends the frame in a series of packets
  */
 int send_frame(SOCKET sock, SOCKADDR_IN sa, char* frame, int frame_size, int window_size){
-    cout << "SENDFRAME" << endl;
     int packet_size = ceil(frame_size / window_size); // Calculate the size of the packet
-    cout << "PACKET_SIZE" << packet_size << endl;
     char packet[packet_size];                   // Create the base packet buffer
-    cout << "PACKET";
     for(int i=0;i<window_size;i++){
         cout << "Sending frame packet " << i << endl;
         strncpy(packet, frame+(i*packet_size), packet_size); // Copy the packet information into the packet

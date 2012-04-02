@@ -74,7 +74,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
         while ( !feof(send_file) ){
             fread(buffer, 0, sizeof(buffer), send_file);
             cout << "sending frame" << endl;
-            send_frame(s,sa,buffer,sizeof(buffer),0);
+            send_frame(s,sa,buffer,sizeof(buffer),WINDOW_SIZE);
         }
 
         fclose(send_file);
