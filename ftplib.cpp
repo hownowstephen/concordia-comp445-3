@@ -68,6 +68,7 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
 
     if((result=select(1,&readfds,NULL,NULL,tp))==SOCKET_ERROR) throw "Timer error!";
     else if(result > 0){
+        memset(packet,0,packet_size);
         if((ibytesrecv = recvfrom(sock, packet, packet_size,0,(SOCKADDR*)&sa, &from)) == SOCKET_ERROR){
             throw "Recv failed";
         }else{
