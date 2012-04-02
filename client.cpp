@@ -16,8 +16,6 @@ using namespace std;
 #include "protocol.cpp"
 #include "socketlib.cpp"
 
-FILE* tracefile = fopen("client.log","w");
-
 int main(void){
     srand ( time(NULL) );
 
@@ -126,8 +124,6 @@ int main(void){
     catch (const char *str) { 
         cerr << str << WSAGetLastError() << endl;
     }
-
-    fclose(tracefile);
 
     //close the client socket and clean up
     closesocket(client_socket);

@@ -33,14 +33,15 @@ void split_packet(char* buffer, int packet_size, char* packet, int* number){
  */
 int send_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
     int ibytessent = 0;
-    char packet[size + sizeof(int)];
+    int packet_size = size + sizeof(int);
+    char packet[packet_size];
     make_packet(packet, buffer, size, pid); // Convert to a tagged packet
     cout << "SENDING " << packet << endl;
-    if ((ibytessent = send(sock,packet,sizeof(packet),0)) == SOCKET_ERROR){ 
+    if ((ibytessent = send(sock,packet,packet_size,0)) == SOCKET_ERROR){ 
         throw "Send failed"; 
     }else{
-        memset(buffer,0,size);   // Zero the buffer
-        return ibytessent;              // Return the number of sent bytes
+        memset(buffer,0,size);  // Zero the buffer
+        return ibytessent;      // Return the number of sent bytes
     }   
 }
 
