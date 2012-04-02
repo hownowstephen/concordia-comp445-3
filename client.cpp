@@ -25,7 +25,7 @@ int main(void){
     SOCKET client_socket;   // Client socket
     SOCKADDR_IN sa_out;      // fill with server info, IP, port
 
-    char buffer[BUFFER_SIZE]; // Buffer
+    char buffer[RAWBUF_SIZE]; // Buffer
 
     WSADATA wsadata;                                    // WSA connection
     char router[11];                                    // Host data
@@ -103,10 +103,10 @@ int main(void){
             server_num = received & 0x1;
 
             cout << "Starting with server packet " << server_num << " and client packet " << client_num << endl;
-
+            */
             // Send client headers
             sprintf(buffer,HEADER, cusername, direction, filename); 
-            sendbuf(client_socket,sa_out,&client_num,buffer);*/
+            send_packet(client_socket,sa_out,buffer,RAWBUF_SIZE);
 
             // Perform a get request
             if(!strcmp(direction,GET)){

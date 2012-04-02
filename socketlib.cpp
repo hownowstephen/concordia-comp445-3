@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define RAWBUF_SIZE 512
+
 void prompt(const char* message, char*buffer){
     cout << message << flush ;  // Print the message
     cin >> buffer;              // Record the input into the buffer
