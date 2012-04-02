@@ -14,13 +14,15 @@ BINCLI = client
 BINRT = router
 RM = rm -f
 
-all: update
+all: sync update
 
 clean:
 	${RM} $(OBJ) $(BINSRV) $(BINCLI)
 
+sync:
+	git pull origin master
+
 update: server client router
-	git pull
 
 client: client.o libraries
 	$(CPP) $(LINKCLI) -o $(BINCLI) $(LIBS)
