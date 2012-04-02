@@ -53,11 +53,13 @@ int send_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
 int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
     int ibytesrecv = 0;
     int from = sizeof(sa);  // Size of the sockaddr
+    int packet_size = size + sizeof(int);
     memset(buffer,0,size); // Clear the buffer to prepare to receive data
-    char packet[size + sizeof(int)];
-    if((ibytesrecv = recvfrom(sock,packet,size + sizeof(int),0,(SOCKADDR*)&sa, &from)) == SOCKET_ERROR){
+    char packet[packet_size];
+    if((ibytesrecv = recvfrom(sock, packet, packet_size,0,(SOCKADDR*)&sa, &from)) == SOCKET_ERROR){
         throw "Recv failed";
     }else{
+        cout << "Received packet " << packet << endl;
         int* packet_id;
         split_packet(packet, size, buffer, packet_id);
         if(pid == *packet_id){
