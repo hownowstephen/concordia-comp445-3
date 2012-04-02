@@ -26,7 +26,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
     //if(!strncmp())
 
-    memcpy(filesize, buffer + (3 * sizeof(char)), sizeof(int));
+    memcpy(&filesize, buffer + (3 * sizeof(char)), sizeof(int));
 
     cout << "File size: " << filesize << endl;
 
