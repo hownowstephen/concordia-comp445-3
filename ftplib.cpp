@@ -53,7 +53,7 @@ int send_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
  * Accepts a tagged packet over a socket and converts to packet data and tag
  */
 int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
-    int ibytesrecv = 0;
+    int ibytesrecv, result;
     int from = sizeof(sa);  // Size of the sockaddr
     int packet_size = size + sizeof(int);
     memset(buffer,0,size); // Clear the buffer to prepare to receive data
@@ -61,6 +61,9 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
     struct timeval *tp=new timeval;   // Timeout struct
     tp->tv_sec=0;                     // Set current time
     tp->tv_usec=TIMEOUT_USEC;         // Set timeout time
+    fd_set readfds;                   // Used by select to manage file descriptor multiplexing
+    FD_ZERO(&readfds);
+    FD_SET(sock,&readfds);
     if((result=select(1,&readfds,NULL,NULL,tp))==SOCKET_ERROR) throw "Timer error!";
     else if(result > 0){
         if((ibytesrecv = recvfrom(sock, packet, packet_size,0,(SOCKADDR*)&sa, &from)) == SOCKET_ERROR){
