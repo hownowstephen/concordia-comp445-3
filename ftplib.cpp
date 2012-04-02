@@ -53,10 +53,7 @@ int send_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
  * Accepts a tagged packet over a socket and converts to packet data and tag
  */
 int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
-    int ibytesrecv, result;
-    int from = sizeof(sa);  // Size of the sockaddr
-    int packet_size = size + sizeof(int);
-    memset(buffer,0,size); // Clear the buffer to prepare to receive data
+    int ibytesrecv, result, from = sizeof(sa), packet_size = size + sizeof(int);
     char packet[packet_size];
     struct timeval *tp=new timeval;   // Timeout struct
     tp->tv_sec=0;                     // Set current time
@@ -71,6 +68,7 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
         }else{
             cout << "Received packet " << packet << endl;
             int* packet_id;
+            memset(buffer,0,size); // Clear the buffer to prepare to receive data
             split_packet(packet, size, buffer, packet_id);
             cout << buffer << " ID " << packet_id << endl;
             if(pid == *packet_id){
