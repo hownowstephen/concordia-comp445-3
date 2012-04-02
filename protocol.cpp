@@ -11,7 +11,7 @@
  * GET function
  * Performs the receiving half of a request
  */
-void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, FILE* logfile){
+void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
     char buffer[PACKET_SIZE * WINDOW_SIZE];
     int count, filesize;
@@ -20,11 +20,11 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, FILE* logfil
 
     recv_packet(s, sa, buffer, PACKET_SIZE); // Receives the filesize negotiation packet
 
-    if(!strncmp())
+    //if(!strncmp())
 
     // Receive the file
     while(count < filesize){
-        if(filesize - count >= BUFFER_SIZE) size = (sizeof(szbuffer) / sizeof(char)) - sizeof(char); // Read a full buffer
+        if(filesize - count >= (PACKET_SIZE * WINDOW_SIZE)) size = (sizeof(buffer) / sizeof(char)) - sizeof(char); // Read a full buffer
         else                                size = ((filesize - count) / sizeof(char)) - sizeof(char);  // Read a shorter buffer
         recv_frame(s,sa,&packet_num,buffer);
         fwrite(buffer,sizeof(char),size,recv_file);
@@ -37,7 +37,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, FILE* logfil
  * PUT function
  * Performs the sending half of a request
  */
-void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, FILE* logfile){
+void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
     FILE* send_file = fopen(filename, 'rb');    // open the file
     char buffer[PACKET_SIZE * WINDOW_SIZE];     // initialize send buffer
@@ -51,7 +51,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, FILE* logfil
 
     cout << "File size: " << filesize << endl;
 
-    buffer = "SIZ";
+    strncpy(buffer, "SIZ", 3);
     memset(buffer + (4 * sizeof(char)), filesize, sizeof(int)); // Add the size of the element to the buffer
     send_packet(s,sa,buffer,PACKET_SIZE);
 
@@ -60,7 +60,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, FILE* logfil
     // Loop through the file and stream in chunks based on the buffer size
     while ( !feof(send_file) ){
         fread(buffer, 0, sizeof(buffer));
-        send_frame(s,sa,&packet_num,buffer);
+        send_frame(s,sa,buffer,);
     }
 
 }
