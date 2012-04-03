@@ -73,14 +73,14 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
         cout << "Sending..." << buffer << endl;
 
-        memset(buffer, 0, sizeof(buffer);
+        memset(buffer, 0, sizeof(buffer));
 
         int count = 0;
         while (fgets(buffer, buffer_size, send_file) != NULL){
             send_packet(s,sa,buffer,buffer_size,0);
             count += sizeof(buffer);
             cout << count << " bytes sent" << endl;
-            memset(buffer, 0, sizeof(buffer);
+            memset(buffer, 0, sizeof(buffer));
         }
 
         fclose(send_file);
