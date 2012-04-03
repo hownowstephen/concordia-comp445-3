@@ -39,6 +39,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
         recv_packet(s,sa,buffer,buffer_size,0);
         fwrite(buffer,sizeof(char),size,recv_file);
         count += sizeof(buffer);
+        cout << "Buffer: " << buffer << endl;
         cout << "Received " << count << " of " << filesize << " bytes" << endl;
     }
     fclose(recv_file);
@@ -73,7 +74,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
         cout << "Sending..." << buffer << endl;
 
         // Loop through the file and stream in chunks based on the buffer size
-        while ( !feof(send_file) ){
+        while (fgets(buffer, sizeof(buffer), send_file) != NULL){
             fread(buffer, 0, buffer_size, send_file);
             send_packet(s,sa,buffer,buffer_size,0);
             cout << "sending " << buffer_size << "bytes" << endl;
