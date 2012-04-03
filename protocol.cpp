@@ -76,6 +76,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
         while ( !feof(send_file) ){
             fread(buffer, 0, buffer_size, send_file);
             send_packet(s,sa,buffer,buffer_size,0);
+            cout << "sending " << buffer_size << "bytes" << endl;
         }
 
         fclose(send_file);
