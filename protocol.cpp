@@ -34,10 +34,8 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
             size = (sizeof(buffer) / sizeof(char)) - sizeof(char); // Read a full buffer
         else
             size = ((filesize - count) / sizeof(char)) - sizeof(char);  // Read a shorter buffer
-        recv_packet(s,sa,buffer,buffer_size,0);
+        count += recv_packet(s,sa,buffer,buffer_size,0);
         fwrite(buffer,sizeof(char),size,recv_file);
-        count += size;
-        cout << "Buffer: " << buffer << endl;
         cout << "Received " << count << " of " << filesize << " bytes" << endl;
     }
     fclose(recv_file);
@@ -75,8 +73,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
         int count = 0;
         while (fgets(buffer, buffer_size, send_file) != NULL){
-            send_packet(s,sa,buffer,buffer_size,0);
-            count += sizeof(buffer);
+            count += send_packet(s,sa,buffer,buffer_size,0);
             cout << count << " bytes sent" << endl;
             memset(buffer, 0, sizeof(buffer));
         }
