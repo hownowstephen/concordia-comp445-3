@@ -30,11 +30,11 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
     count = 0;
     // Receive the file
-    while(count + 1 < filesize){
+    while(count < filesize){
         if(filesize - count >= (buffer_size))
-            size = (sizeof(buffer) / sizeof(char)) - sizeof(char); // Read a full buffer
+            size = (buffer_size / sizeof(char)); // Read a full buffer
         else
-            size = ((filesize - count) / sizeof(char)) - sizeof(char);  // Read a shorter buffer
+            size = ((filesize - count) / sizeof(char));  // Read a shorter buffer
         count += recv_packet(s,sa,buffer,buffer_size,0);
         fwrite(buffer,sizeof(char),size,recv_file);
         cout << "Received " << count << " of " << filesize << " bytes" << endl;
