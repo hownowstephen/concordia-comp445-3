@@ -114,6 +114,7 @@ int recv_frame(SOCKET sock, SOCKADDR_IN sa, char* frame, int frame_size, int win
     int recv;                                   // Recv data from recv_packet
     for(int i=0;i<window_size;i++){
         cout << "Receiving frame packet " << i <<  " of size " << packet_size << endl;
+        try{
         if((recv = recv_packet(sock, sa, packet, packet_size, i)) < 1){
             cout << "Received the wrong packet, expecting " << i << " got " << recv << endl;
             memset(packet,0,packet_size);   // Zero the buffer
@@ -123,6 +124,9 @@ int recv_frame(SOCKET sock, SOCKADDR_IN sa, char* frame, int frame_size, int win
         }else{
             cout << "Received packet " << packet << endl;
             strncpy(frame+(i*packet_size), packet, packet_size);    // Copy the buffer into the frame output
+        }
+        }catch(const char* err){
+            cout << err << WSAGetLastError() << endl;
         }
     }
     send_packet(sock, sa, "ACK", packet_size, 0); // Send the ACK for this frame
