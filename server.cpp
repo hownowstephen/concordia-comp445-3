@@ -16,7 +16,7 @@ using namespace std;
 #include "protocol.cpp"
 #include "socketlib.cpp"
 
-int main(void){
+int main(int argc, char **argv){
     /* Main function, performs the listening loop for client connections */
     srand ( time(NULL) );
 
