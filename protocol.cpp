@@ -76,7 +76,6 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
         int count = 0;
         // Loop through the file and stream in chunks based on the buffer size
         while (fgets(buffer, sizeof(buffer), send_file) != NULL){
-            fread(buffer, 0, buffer_size, send_file);
             send_packet(s,sa,buffer,buffer_size,0);
             count += sizeof(buffer);
             cout << "Sent " << count << "bytes" << endl;
