@@ -28,6 +28,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
     cout << "File size: " << filesize << endl;
 
+    count = 0;
     // Receive the file
     while(count + 1 < filesize){
         if(filesize - count >= (buffer_size))
