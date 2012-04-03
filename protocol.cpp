@@ -4,7 +4,7 @@
 #define ROUTER_PORT2 7001   // router port number 2 (client)
 #define PEER_PORT1  5000    // peer port number 1 (server)
 #define PEER_PORT2  5001    // peer port number 2 (client)
-#define PACKET_SIZE 80      // Size (in bytes) of each packet
+#define FRAME_SIZE 80      // Size (in bytes) of each packet
 #define WINDOW_SIZE 1
 
 #define GET "get"           // Method name for GET requests
@@ -16,15 +16,13 @@
  * Performs the receiving half of a request
  */
 void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
-    int buffer_size = PACKET_SIZE * WINDOW_SIZE;
+    int buffer_size = FRAME_SIZE * WINDOW_SIZE;
     char buffer[buffer_size];
     int count, filesize, size;
 
     FILE* recv_file = fopen(filename, "wb");
 
     recv_packet(s, sa, buffer, PACKET_SIZE, 0); // Receives the filesize negotiation packet
-
-    //if(!strncmp())
 
     memcpy(&filesize, buffer + (3 * sizeof(char)), sizeof(int));
 
@@ -38,7 +36,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
             size = ((filesize - count) / sizeof(char)) - sizeof(char);  // Read a shorter buffer
         recv_packet(s,sa,buffer,buffer_size,0);
         fwrite(buffer,sizeof(char),size,recv_file);
-        count += sizeof(buffer);
+        count += size;
         cout << "Buffer: " << buffer << endl;
         cout << "Received " << count << " of " << filesize << " bytes" << endl;
     }
@@ -51,7 +49,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
  */
 void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
-    int buffer_size = PACKET_SIZE * WINDOW_SIZE;
+    int buffer_size = FRAME_SIZE * WINDOW_SIZE;
     char buffer[buffer_size];   // initialize send buffer
     int filesize;
     int size = 0, sent = 0;     // Trace variables
