@@ -22,7 +22,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
     FILE* recv_file = fopen(filename, "wb");
 
-    recv_packet(s, sa, buffer, PACKET_SIZE, 0); // Receives the filesize negotiation packet
+    recv_packet(s, sa, buffer, FRAME_SIZE, 0); // Receives the filesize negotiation packet
 
     memcpy(&filesize, buffer + (3 * sizeof(char)), sizeof(int));
 
