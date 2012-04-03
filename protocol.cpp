@@ -75,7 +75,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
         int count = 0;
         while ( !feof(send_file) ){
-            fread(buffer,1,BUFFER_SIZE,send_file);
+            fread(buffer,1,buffer_size,send_file);
             count += send_packet(s,sa,buffer,buffer_size,0);
             cout << count << " bytes sent" << endl;
             recv_packet(s,sa,buffer,buffer_size,0);
