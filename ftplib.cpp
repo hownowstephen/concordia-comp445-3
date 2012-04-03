@@ -121,6 +121,7 @@ int recv_frame(SOCKET sock, SOCKADDR_IN sa, char* frame, int frame_size, int win
             memset(packet + (3*sizeof(char)), abs(recv), sizeof(int)); // Send the NAK with the packet ID
             send_packet(sock, sa, "NAK", packet_size, 0);
         }else{
+            cout << "Received packet " << packet << endl;
             strncpy(frame+(i*packet_size), packet, packet_size);    // Copy the buffer into the frame output
         }
     }
