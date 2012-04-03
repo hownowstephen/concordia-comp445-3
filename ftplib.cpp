@@ -107,7 +107,7 @@ int send_frame(SOCKET sock, SOCKADDR_IN sa, char* frame, int frame_size, int win
  * Loops over the expected packet ids and performs a recv
  */
 int recv_frame(SOCKET sock, SOCKADDR_IN sa, char* frame, int frame_size, int window_size){
-    int packet_size = frame_size / window_size; // Calculate the size of the packet
+    int packet_size = ceil(frame_size / window_size); // Calculate the size of the packet
     char raw_packet[packet_size];               // Recv packet buffer
     char* packet;                               // Packet buffer
     int* pid;                                   // Packet identifier
