@@ -113,7 +113,7 @@ int recv_frame(SOCKET sock, SOCKADDR_IN sa, char* frame, int frame_size, int win
     int* pid;                                   // Packet identifier
     int recv;                                   // Recv data from recv_packet
     for(int i=0;i<window_size;i++){
-        cout << "Receiving frame packet " << i << endl;
+        cout << "Receiving frame packet " << i <<  " of size " << packet_size << endl;
         if((recv = recv_packet(sock, sa, packet, packet_size, i)) < 1){
             cout << "Received the wrong packet, expecting " << i << " got " << recv << endl;
             memset(packet,0,packet_size);   // Zero the buffer
