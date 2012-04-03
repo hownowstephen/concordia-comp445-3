@@ -89,8 +89,7 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
  * Send an entire frame over a udp socket
  * Loops over supplied char* buffer and sends the frame in a series of packets
  */
-int send_frame(SOCKET sock, SOCKADDR_IN sa, char* frame, int frame_size, int window_size){
-    int packet_size = ceil(frame_size / window_size); // Calculate the size of the packet
+int send_frame(SOCKET sock, SOCKADDR_IN sa, char* frame, int packet_size, int window_size){
     char packet[packet_size];                   // Create the base packet buffer
     for(int i=0;i<window_size;i++){
         cout << "Sending frame packet " << i << endl;
@@ -105,8 +104,7 @@ int send_frame(SOCKET sock, SOCKADDR_IN sa, char* frame, int frame_size, int win
  * Receive an entire frame over a udp socket
  * Loops over the expected packet ids and performs a recv
  */
-int recv_frame(SOCKET sock, SOCKADDR_IN sa, char* frame, int frame_size, int window_size){
-    int packet_size = ceil(frame_size / window_size); // Calculate the size of the packet
+int recv_frame(SOCKET sock, SOCKADDR_IN sa, char* frame, int packet_size, int window_size){
     char raw_packet[packet_size];               // Recv packet buffer
     char* packet;                               // Packet buffer
     int* pid;                                   // Packet identifier
