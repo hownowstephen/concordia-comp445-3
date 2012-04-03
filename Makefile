@@ -7,7 +7,7 @@ CPP  = g++.exe
 LINKCLI = client.o
 LINKSRV  = server.o
 LINKRT = router.o
-OBJ = $(LINKCLI) $(LINKSRV) $(LINKRT) protocol.o ftplib.o
+OBJ = $(LINKCLI) $(LINKSRV) protocol.o ftplib.o
 LIBS = -lwsock32
 BINSRV = server
 BINCLI = client
@@ -22,7 +22,7 @@ clean:
 sync:
 	git pull origin master
 
-update: server client router
+update: server client
 
 client: client.o libraries
 	$(CPP) $(LINKCLI) -o $(BINCLI) $(LIBS)
