@@ -16,18 +16,18 @@ void log_transaction(char* message, FILE* logfile){
  * Create a packet with an identifier tag
  * Takes a buffer of size packet_size and generates a packet of size packet_size + sizeof(int)
  */
-void make_packet(char* buffer, char* packet, int packet_size, int number){
-    memcpy(buffer, packet, packet_size);    // Copy the base packet into the full packet
-    memcpy(buffer + packet_size, &number, sizeof( int ) );  // Copy the tag into the packet
+void make_packet(char* packet, char* buffer, int buffer_size, int number){
+    memcpy(packet, buffer, buffer_size);    // Copy the base packet into the full packet
+    memcpy(packet + buffer_size, &number, sizeof( int ) );  // Copy the tag into the packet
 }
 
 /**
  * Split a packet into packet name and identifier
  * Takes a packet of size packet_size + sizeof(int) and extracts a packet (size packet_size) and its integer identifier
  */
-void split_packet(char* buffer, char* packet, int packet_size, int* number){
-    memcpy(packet, buffer, packet_size);                // Extract the actual packet data
-    memcpy(number, buffer + packet_size, sizeof(int));  // Extract the packet identifier
+void split_packet(char* packet, char* buffer, int buffer_size, int* number){
+    memcpy(buffer, packet, buffer_size);                // Extract the actual packet data
+    memcpy(number, packet + buffer_size, sizeof(int));  // Extract the packet identifier
 }
 
 /**
@@ -73,7 +73,7 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
         }else{
             int packet_id;
             memset(buffer,0,size); // Clear the buffer to prepare to receive data
-            split_packet(buffer, packet, packet_size, &packet_id);
+            split_packet(packet, buffer, size, &packet_id);
             if(pid == packet_id){
                 return ibytesrecv - sizeof(int);  // Return the amount of data received
             }else{
