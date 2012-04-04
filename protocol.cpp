@@ -42,6 +42,8 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                 fwrite(buffer,sizeof(char),size,recv_file);     // Write to the output file
                 cout << "Received packet " << offset << "(" << count << " of " << filesize << " bytes)" << endl;
                 offset = (offset + 1) % WINDOW_SIZE;            // Update the offset
+            }else{
+                cout << "Error in recv " << recv << endl;
             }
             recv_count++;
         }
