@@ -55,6 +55,8 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
             recv_count--;
             next = (next + 1) % WINDOW_SIZE;
         }
+
+        if(count >= filesize) break;
     }
     fclose(recv_file);
 }
