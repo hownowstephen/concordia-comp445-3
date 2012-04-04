@@ -28,16 +28,26 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
     cout << "File size: " << filesize << endl;
 
     offset = recv = count = 0;
+
+    int expected_size = WINDOW_SIZE;
+    int recv_count;
     // Receive the file
-    while(count < filesize){
-        if(filesize - count >= (FRAME_SIZE))    size = (FRAME_SIZE / sizeof(char));         // Read the full buffer
-        else                                    size = ((filesize - count) / sizeof(char)); // Read a subset of the buffer
-        if((recv = recv_packet(s,sa,buffer,FRAME_SIZE,offset)) > 0){ // Receive the packet from the peer
-            count += recv;
-            fwrite(buffer,sizeof(char),size,recv_file);     // Write to the output file
-            cout << "Received packet " << offset << "(" << count << " of " << filesize << " bytes)" << endl;
-            send_packet(s,sa,buffer,FRAME_SIZE,offset);          // Send acknowledgement
-            offset = (offset + 1) % WINDOW_SIZE;            // Update the offset
+    while(1){
+        recv_count = 0;
+        while(count < filesize && recv_count < expected_size){
+            if(filesize - count >= (FRAME_SIZE))    size = (FRAME_SIZE / sizeof(char));         // Read the full buffer
+            else                                    size = ((filesize - count) / sizeof(char)); // Read a subset of the buffer
+            if((recv = recv_packet(s,sa,buffer,FRAME_SIZE,offset)) > 0){ // Receive the packet from the peer
+                count += recv;
+                fwrite(buffer,sizeof(char),size,recv_file);     // Write to the output file
+                cout << "Received packet " << offset << "(" << count << " of " << filesize << " bytes)" << endl;
+                offset = (offset + 1) % WINDOW_SIZE;            // Update the offset
+            }
+            recv_count++;
+        }
+        while(recv_count > 0){
+            send_packet(s,sa,buffer,FRAME_SIZE,offset); // Send acknowledgement
+            recv_count--;
         }
     }
     fclose(recv_file);
