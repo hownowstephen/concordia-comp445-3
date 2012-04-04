@@ -48,6 +48,8 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
             recv_count++;
         }
         while(recv_count > 0){
+            memset(buffer,0,FRAME_SIZE);
+            strncpy(buffer, "ACK", 3);
             send_packet(s,sa,buffer,FRAME_SIZE,offset); // Send acknowledgement
             recv_count--;
         }
@@ -104,7 +106,8 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
             // Receive acknowledgments for at least half the frames before continuing sending 
             while(frames_outstanding > 0 || (feof(send_file) and frames_outstanding > 0)){
                 cout << "Waiting for ack" << endl;
-                recv_packet(s,sa,buffer,FRAME_SIZE,next);   // Receive acknowledgment from the client
+                while(recv_packet(s,sa,buffer,FRAME_SIZE,next) == 0){}   // Receive acknowledgment from the client
+                cout << "Got " << buffer << " from client" << endl;
                 memset(buffer, 0, sizeof(buffer));          // Zero the buffer
                 next = (next + 1) % WINDOW_SIZE;             // Update the next frame tracker
                 frames_outstanding --;
