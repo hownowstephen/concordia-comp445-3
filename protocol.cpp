@@ -99,7 +99,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
             while(!feof(send_file) && frames_outstanding < WINDOW_SIZE){
                 fread(buffer,1,FRAME_SIZE,send_file);                       // Read the next block of data
                 memcpy(window + (offset * FRAME_SIZE), buffer, FRAME_SIZE); // Store the data in the local window
-                count += send_packet(s,sa,buffer,FRAME_SIZE,0);             // Send the packet to peer
+                count += send_packet(s,sa,buffer,FRAME_SIZE,offset);             // Send the packet to peer
                 offset = (offset + 1) % WINDOW_SIZE;                        // Update the offset
                 frames_outstanding++;
                 cout << "Sent " << count << " bytes" << endl;
