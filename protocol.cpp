@@ -1,4 +1,5 @@
 #include "ftplib.cpp"
+#include <signal.h>
 
 #define ROUTER_PORT1 7000   // router port number 1 (server)
 #define ROUTER_PORT2 7001   // router port number 2 (client)
@@ -10,6 +11,25 @@
 #define GET "get"           // Method name for GET requests
 #define PUT "put"           // Method name for PUT requests
 #define HEADER "%s\t%s\t%s" // Format string for headers
+
+
+/**
+ * Timeout functions
+ * taken from http://users.encs.concordia.ca/~mia/tutorials/comp445/Go-Back-N/timer.html
+ */
+void setTimer(void){
+  struct itimerval waitITV;
+  struct timeval waitTV;
+  waitTV.tv_sec = 0;
+  waitTV.tv_usec = 110;
+  waitITV.it_interval = waitTV;
+  waitITV.it_value = waitTV;
+  setitimer(ITIMER_REAL, &waitITV, NULL);
+}
+
+void unsetTimer(void){
+  setitimer(ITIMER_REAL, NULL, NULL);
+}
 
 /**
  * GET function
@@ -41,6 +61,12 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
     fclose(recv_file);
 }
 
+
+void put_timeout(){
+    cout << "Frame has timed out" << endl;
+    exit(0);
+}
+
 /**
  * PUT function
  * Performs the sending half of a request
@@ -53,6 +79,11 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
     int size = 0, sent = 0;                 // Trace variables
 
     FILE* send_file;
+
+
+    signal(SIGINT, put_timeout);
+
+    setTimer();
 
     if((send_file = fopen(filename, "rb")) != NULL){    // open the file
 
