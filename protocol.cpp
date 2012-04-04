@@ -31,6 +31,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
     int expected_size = WINDOW_SIZE;
     int recv_count;
+    int next = 0;
     // Receive the file
     while(1){
         recv_count = 0;
@@ -50,8 +51,9 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
         while(recv_count > 0){
             memset(buffer,0,FRAME_SIZE);
             strncpy(buffer, "ACK", 3);
-            send_packet(s,sa,buffer,FRAME_SIZE,offset); // Send acknowledgement
+            send_packet(s,sa,buffer,FRAME_SIZE,next); // Send acknowledgement
             recv_count--;
+            next = (next + 1) % WINDOW_SIZE;
         }
     }
     fclose(recv_file);
