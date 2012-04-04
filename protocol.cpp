@@ -30,10 +30,11 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
     offset = recv = count = 0;
 
     int expected_size = WINDOW_SIZE;
-    int recv_count;
+    int recv_count, nak;
     int next = 0;
     // Receive the file
     while(1){
+        nak = -1;
         recv_count = 0;
         while(count < filesize && recv_count < expected_size){
             if(filesize - count >= (FRAME_SIZE))    size = (FRAME_SIZE / sizeof(char));         // Read the full buffer
@@ -43,16 +44,19 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                 fwrite(buffer,sizeof(char),size,recv_file);     // Write to the output file
                 cout << "Received packet " << offset << "(" << count << " of " << filesize << " bytes)" << endl;
                 offset = (offset + 1) % WINDOW_SIZE;            // Update the offset
-            }else{
+            }else if(recv < 0){
                 cout << "Error in recv " << recv << endl;
+                nak = offset;
             }
             recv_count++;
         }
         while(recv_count > 0){
             memset(buffer,0,FRAME_SIZE);
-            strncpy(buffer, "ACK", 3);
+            if(next != nak) strncpy(buffer, "ACK", 3);  // Send ACK
+            else            strncpy(buffer, "NAK", 3);  // Send NAK
             send_packet(s,sa,buffer,FRAME_SIZE,next); // Send acknowledgement
             recv_count--;
+            if(next == nak) break; // As soon as we send a NAK we can break
             next = (next + 1) % WINDOW_SIZE;
         }
 
