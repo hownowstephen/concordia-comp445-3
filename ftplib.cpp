@@ -43,6 +43,7 @@ int send_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
     if ((ibytessent = sendto(sock,packet,packet_size,0,(SOCKADDR*)&sa, from)) == SOCKET_ERROR){
         throw "Send failed"; 
     }else{
+        cout << "Sent packet " << pid << endl;
         memset(buffer,0,size);  // Zero the buffer
         return ibytessent - sizeof(int);      // Return the number of sent bytes
     }   
@@ -75,7 +76,7 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
             memset(buffer,0,size); // Clear the buffer to prepare to receive data
             split_packet(packet, buffer, size, &packet_id);
 
-            cout << "Got packet " << packet_id << ": " << buffer << endl;
+            cout << "Got packet " << packet_id << endl;
             if(pid == packet_id){
                 return ibytesrecv - sizeof(int);  // Return the amount of data received
             }else{
@@ -85,35 +86,4 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
     }else{
         return 0;
     }
-}
-
-/**
- * Send an entire frame over a udp socket
- * Loops over supplied char* buffer and sends the frame in a series of packets
- */
-int send_frame(SOCKET sock, SOCKADDR_IN sa, char* frame, int packet_size, int window_size){
-    char packet[packet_size];                   // Create the base packet buffer
-    for(int i=0;i<window_size;i++){
-        cout << "Sending frame packet " << i << endl;
-        strncpy(packet, frame+(i*packet_size), packet_size); // Copy the packet information into the packet
-        send_packet(sock, sa, packet, packet_size, i);      // Send a tagged packet over the supplied socket
-    }
-    char ack[packet_size + sizeof(int)];        // Create a buffer for the ack/nack
-    recv_packet(sock, sa, ack, packet_size, 0); // Receive the acknowledgment
-}
-
-/**
- * Receive an entire frame over a udp socket
- * Loops over the expected packet ids and performs a recv
- */
-int recv_frame(SOCKET sock, SOCKADDR_IN sa, char* frame, int packet_size, int window_size){
-    char raw_packet[packet_size];               // Recv packet buffer
-    char* packet;                               // Packet buffer
-    int* pid;                                   // Packet identifier
-    int recv;                                   // Recv data from recv_packet
-    for(int i=0;i<window_size;i++){
-        cout << "Receiving frame packet " << i <<  " of size " << packet_size << endl;
-        recv = recv_packet(sock, sa, packet, packet_size, i);
-    }
-    send_packet(sock, sa, "ACK", packet_size, 0); // Send the ACK for this frame
 }

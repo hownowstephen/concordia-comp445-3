@@ -36,6 +36,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
     while(1){
         nak = -1;
         recv_count = 0;
+        next = offset;
         while(count < filesize && recv_count < expected_size){
             if(filesize - count >= (FRAME_SIZE))    size = (FRAME_SIZE / sizeof(char));         // Read the full buffer
             else                                    size = ((filesize - count) / sizeof(char)); // Read a subset of the buffer
@@ -56,7 +57,10 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
             else            strncpy(buffer, "NAK", 3);  // Send NAK
             send_packet(s,sa,buffer,FRAME_SIZE,next); // Send acknowledgement
             recv_count--;
-            if(next == nak) break; // As soon as we send a NAK we can break
+            if(next == nak){
+                offset = nak;
+                break; 
+            } // As soon as we send a NAK we can break
             next = (next + 1) % WINDOW_SIZE;
         }
 
