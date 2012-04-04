@@ -5,7 +5,7 @@
 #define PEER_PORT1  5000    // peer port number 1 (server)
 #define PEER_PORT2  5001    // peer port number 2 (client)
 #define FRAME_SIZE  128      // Size (in bytes) of each packet
-#define WINDOW_SIZE 1
+#define WINDOW_SIZE 5
 
 #define GET "get"           // Method name for GET requests
 #define PUT "put"           // Method name for PUT requests
