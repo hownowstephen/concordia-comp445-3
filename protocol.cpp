@@ -90,6 +90,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
             // Receive acknowledgments for at least half the frames before continuing sending 
             while(frames_outstanding > 0 || (feof(send_file) and frames_outstanding > 0)){
+                cout << "Waiting for ack" << endl;
                 recv_packet(s,sa,buffer,FRAME_SIZE,next);   // Receive acknowledgment from the client
                 memset(buffer, 0, sizeof(buffer));          // Zero the buffer
                 next = (next + 1) % WINDOW_SIZE;             // Update the next frame tracker
