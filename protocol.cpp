@@ -17,7 +17,7 @@
  */
 void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
     char buffer[FRAME_SIZE];
-    int count, filesize, size;
+    int count, offset, recv, filesize, size;
 
     FILE* recv_file = fopen(filename, "wb");
 
@@ -27,17 +27,18 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
     cout << "File size: " << filesize << endl;
 
-    int offset = 0;
-    count = 0;
+    offset = recv = count = 0;
     // Receive the file
     while(count < filesize){
         if(filesize - count >= (FRAME_SIZE))    size = (FRAME_SIZE / sizeof(char));         // Read the full buffer
         else                                    size = ((filesize - count) / sizeof(char)); // Read a subset of the buffer
-        count += recv_packet(s,sa,buffer,FRAME_SIZE,offset); // Receive the packet from the peer
-        fwrite(buffer,sizeof(char),size,recv_file);     // Write to the output file
-        cout << "Received " << count << " of " << filesize << " bytes" << endl;
-        send_packet(s,sa,buffer,FRAME_SIZE,offset);          // Send acknowledgement
-        offset = (offset + 1) % WINDOW_SIZE;            // Update the offset
+        if((recv = recv_packet(s,sa,buffer,FRAME_SIZE,offset)) > 0){ // Receive the packet from the peer
+            count += recv;
+            fwrite(buffer,sizeof(char),size,recv_file);     // Write to the output file
+            cout << "Received packet " << offset << "(" << count << " of " << filesize << " bytes)" << endl;
+            send_packet(s,sa,buffer,FRAME_SIZE,offset);          // Send acknowledgement
+            offset = (offset + 1) % WINDOW_SIZE;            // Update the offset
+        }
     }
     fclose(recv_file);
 }
