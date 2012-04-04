@@ -16,7 +16,6 @@
  * Performs the receiving half of a request
  */
 void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
-    int FRAME_SIZE = FRAME_SIZE;
     char buffer[FRAME_SIZE];
     int count, filesize, size;
 
@@ -90,7 +89,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
             }
 
             // Receive acknowledgments for at least half the frames before continuing sending 
-            while(frames_outstanding > 0) || (feof(send_file) and frames_outstanding > 0)){
+            while(frames_outstanding > 0 || (feof(send_file) and frames_outstanding > 0)){
                 recv_packet(s,sa,buffer,FRAME_SIZE,next);   // Receive acknowledgment from the client
                 memset(buffer, 0, sizeof(buffer));          // Zero the buffer
                 next = (next + 1) % WINDOW_SIZE;             // Update the next frame tracker
