@@ -1,6 +1,4 @@
 #include "ftplib.cpp"
-#include <sys/time.h>
-#include <signal.h>
 
 #define ROUTER_PORT1 7000   // router port number 1 (server)
 #define ROUTER_PORT2 7001   // router port number 2 (client)
@@ -12,25 +10,6 @@
 #define GET "get"           // Method name for GET requests
 #define PUT "put"           // Method name for PUT requests
 #define HEADER "%s\t%s\t%s" // Format string for headers
-
-
-/**
- * Timeout functions
- * taken from http://users.encs.concordia.ca/~mia/tutorials/comp445/Go-Back-N/timer.html
- */
-void setTimer(void){
-  struct itimerval waitITV;
-  struct timeval waitTV;
-  waitTV.tv_sec = 0;
-  waitTV.tv_usec = 110;
-  waitITV.it_interval = waitTV;
-  waitITV.it_value = waitTV;
-  setitimer(ITIMER_REAL, &waitITV, NULL);
-}
-
-void unsetTimer(void){
-  setitimer(ITIMER_REAL, NULL, NULL);
-}
 
 /**
  * GET function
@@ -49,23 +28,19 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
     cout << "File size: " << filesize << endl;
 
+    int offset = 0;
     count = 0;
     // Receive the file
     while(count < filesize){
         if(filesize - count >= (FRAME_SIZE))    size = (FRAME_SIZE / sizeof(char));         // Read the full buffer
         else                                    size = ((filesize - count) / sizeof(char)); // Read a subset of the buffer
-        count += recv_packet(s,sa,buffer,FRAME_SIZE,0); // Receive the packet from the peer
+        count += recv_packet(s,sa,buffer,FRAME_SIZE,offset); // Receive the packet from the peer
         fwrite(buffer,sizeof(char),size,recv_file);     // Write to the output file
         cout << "Received " << count << " of " << filesize << " bytes" << endl;
-        send_packet(s,sa,buffer,FRAME_SIZE,0);          // Send acknowledgement
+        send_packet(s,sa,buffer,FRAME_SIZE,offset);          // Send acknowledgement
+        offset = (offset + 1) % WINDOW_SIZE;            // Update the offset
     }
     fclose(recv_file);
-}
-
-
-void put_timeout(int sig){
-    cout << "Frame has timed out" << endl;
-    exit(0);
 }
 
 /**
@@ -81,11 +56,6 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
     FILE* send_file;
 
-
-    signal(SIGINT, put_timeout);
-
-    setTimer();
-
     if((send_file = fopen(filename, "rb")) != NULL){    // open the file
 
         // Determines the file size
@@ -98,8 +68,6 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
         strncpy(buffer, "SIZ", 3);
         memcpy(buffer + (3 * sizeof(char)), &filesize, sizeof(int)); // Add the size of the element to the buffer
         send_packet(s,sa,buffer,FRAME_SIZE,0);
-
-        cout << "Sending..." << buffer << endl;
 
         memset(buffer, 0, sizeof(buffer));
 
@@ -117,13 +85,16 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                 memcpy(window + (offset * FRAME_SIZE), buffer, FRAME_SIZE); // Store the data in the local window
                 count += send_packet(s,sa,buffer,FRAME_SIZE,0);             // Send the packet to peer
                 offset = (offset + 1) % WINDOW_SIZE;                        // Update the offset
+                frames_outstanding++;
+                cout << "Sent " << count << " bytes" << endl;
             }
 
             // Receive acknowledgments for at least half the frames before continuing sending 
-            while(frames_outstanding > floor(WINDOW_SIZE / 2) || (feof(send_file) and frames_outstanding > 0)){
+            while(frames_outstanding > 0) || (feof(send_file) and frames_outstanding > 0)){
                 recv_packet(s,sa,buffer,FRAME_SIZE,next);   // Receive acknowledgment from the client
                 memset(buffer, 0, sizeof(buffer));          // Zero the buffer
-                next = (next + 1) % WINDOW_SIZE             // Update the next frame tracker
+                next = (next + 1) % WINDOW_SIZE;             // Update the next frame tracker
+                frames_outstanding --;
             }
 
             if(feof(send_file) && !frames_outstanding) break; // Break when done reading the file and all frames are acked
