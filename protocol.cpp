@@ -1,4 +1,5 @@
 #include "ftplib.cpp"
+#include <sys/time.h>
 #include <signal.h>
 
 #define ROUTER_PORT1 7000   // router port number 1 (server)
@@ -62,7 +63,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 }
 
 
-void put_timeout(){
+void put_timeout(int sig){
     cout << "Frame has timed out" << endl;
     exit(0);
 }
@@ -102,7 +103,8 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
         memset(buffer, 0, sizeof(buffer));
 
-        int count = offset = 0;
+        int count = 0;
+        int offset = 0;
         int frames_outstanding = 0;
         int next = 0;
 
