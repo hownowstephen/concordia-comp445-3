@@ -120,6 +120,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                 cout << "Waiting for ack" << endl;
                 while(recv_packet(s,sa,buffer,FRAME_SIZE,next) == 0){}   // Receive acknowledgment from the client
                 cout << "Got " << buffer << " from client" << endl;
+                if(!strcmp(buffer,"NAK")) cout << "Client sent NAK, rebalancing window and resending" << endl;
                 memset(buffer, 0, sizeof(buffer));          // Zero the buffer
                 next = (next + 1) % WINDOW_SIZE;             // Update the next frame tracker
                 frames_outstanding --;
