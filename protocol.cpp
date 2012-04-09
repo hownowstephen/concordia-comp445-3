@@ -139,7 +139,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
             // Receive ACKs before continuing sending 
             while(frames_outstanding > 0){
                 cout << "Waiting for ack" << endl;
-                if((packet_id = recv_packet(s,sa,buffer,FRAME_SIZE,next)) == 0){
+                if((packet_id = recv_packet(s,sa,buffer,FRAME_SIZE,next)) < 0){
                     cout << "Client does not seem to have received packet " << next << endl;
                     resend = true;
                     break;
