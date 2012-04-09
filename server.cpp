@@ -57,30 +57,29 @@ int main(int argc, char **argv){
             int progress = 0;
 
             while(1){
-                // Receive a random number from the client
 
-                if(recv_packet(server_socket, sa_out, buffer, RAWBUF_SIZE, 200) != 200){
-                if(progress < 1) continue;
-                }else progress = 1;
-                cout << "Received " << buffer << endl;
-                sscanf(buffer,"RND %d",&received);
+                if(progress < 1){
+                    // Receive a random number from the client
+                    if(recv_safe(server_socket, sa_out, buffer, RAWBUF_SIZE, 200) == 200){
+                        cout << "Received " << buffer << endl;
+                        sscanf(buffer,"RAND %d",&received);
+                    }else continue;
 
-                // Send acknowledgement to the client along with our random number
-                sprintf(buffer,"RAND %d %d",received,selected);
-                cout << "Sending " << buffer << endl;
-                if(send_packet(server_socket, sa_out, buffer, RAWBUF_SIZE, 100) > 0){
-                if(progress < 2) continue;
-                }else    progress = 2;
+                    // Send acknowledgement to the client along with our random number
+                    memset(buffer, 0, sizeof(buffer));
+                    sprintf(buffer,"RAND %d %d",received,selected);
+                    if(send_safe(server_socket, sa_out, buffer, RAWBUF_SIZE, 100) != 100){
+                        continue;
+                    }
+                    progress = 1;
+                }
 
-                client_num = 2;
                 // Finally wait for a response from the client with the number
-                if(recv_packet(server_socket, sa_out, buffer, RAWBUF_SIZE, 201) != 201){
-                if(progress < 3) continue;
-                }else    progress = 3;
-                cout << "Received " << buffer << endl;
-                sscanf(buffer,"RAND %d",&verify);
-
-                if(progress == 3) break;
+                if(recv_safe(server_socket, sa_out, buffer, RAWBUF_SIZE, 201) == 201){
+                    cout << "Received " << buffer << endl;
+                    sscanf(buffer,"RAND %d",&verify);
+                    break;
+                }
             }
 
             client_num = received % WINDOW_SIZE + 1;

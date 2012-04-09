@@ -82,3 +82,24 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
         return -1;
     }
 }
+
+
+// Performs a safe send, loops sending and then sends an ack
+int send_safe(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
+    char ackbuf[size];
+    memset(ackbuf, 0, sizeof(ackbuf));
+    send_packet(sock, sa, buffer, size, pid);
+    return recv_packet(sock, sa, ackbuf, size, pid);
+}
+
+
+// Performs a safe recv function, only sends the WOOT ack on success
+int recv_safe(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
+    char ackbuf[size];
+    memset(ackbuf, 0, sizeof(ackbuf));
+    strncpy(ackbuf, "WOOT", 4);
+    int result;
+    if((result = recv_packet(sock, sa, buffer, size, pid)) == pid)
+        send_packet(sock, sa, ackbuf, size, pid);
+    return result;
+}

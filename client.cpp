@@ -70,31 +70,27 @@ int main(void){
 
             while(1){
 
-                client_num = 3;
-                // Send acknowledgement to the client along with our random number
-                sprintf(buffer,"RAND %d",selected);
-                cout << "Sending " << buffer << endl;
-                if(send_packet(client_socket, sa_out, buffer, RAWBUF_SIZE, 200) > 0){
-                if(progress < 1) continue;
-                }else progress = 1;
+                // Send a random number to the server
+                if(progress < 1){
+                    memset(buffer, 0, sizeof(buffer));
+                    sprintf(buffer,"RAND %d",selected);
+                    cout << "Sending " << buffer << endl;
+                    if(send_safe(client_socket, sa_out, buffer, RAWBUF_SIZE, 200) != 200) continue;
+                    progress = 1;
+                }
 
-                server_num = 1;
-                // Finally wait for a response from the client with the number
-                if(recv_packet(client_socket, sa_out, buffer, RAWBUF_SIZE, 100) != 100){
-                if(progress < 2) continue;
-                }else progress = 2;
-                cout << "Received " << buffer << endl;
-                sscanf(buffer,"RAND %d %d",&verify,&received);
+                // Finally wait for a response from the server with the number
+                if(recv_safe(client_socket, sa_out, buffer, RAWBUF_SIZE, 100) == 100){
+                    cout << "Received " << buffer << endl;
+                    sscanf(buffer,"RAND %d %d",&verify,&received);
+                }else continue;
 
-                client_num = 2;
-                // Send acknowledgement to the client along with our random number
+                // Send acknowledgement to the server along with our random number
+                memset(buffer, 0, sizeof(buffer));
                 sprintf(buffer,"RAND %d",received);
                 cout << "Sending " << buffer << endl;
-                if(send_packet(client_socket, sa_out, buffer, RAWBUF_SIZE, 201) > 0){
-                if(progress < 3) continue;
-                }else progress = 3;
-
-                if(progress == 3) break;
+                if(send_safe(client_socket, sa_out, buffer, RAWBUF_SIZE, 201) != 201) continue;
+                break;
             }
 
             client_num = selected % WINDOW_SIZE + 1;
