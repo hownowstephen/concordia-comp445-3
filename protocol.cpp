@@ -29,7 +29,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
     offset = recv = count = 0;
 
-    int expected_size = WINDOW_SIZE;
+    int expected_size = WINDOW_SIZE + 1;
     int recv_count, nak;
     int next = 0;
     int packet_id;
@@ -38,14 +38,14 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
         nak = -1;
         recv_count = 0;
         next = offset;
-        while(count < filesize && recv_count < expected_size){
+        while(count < filesize && recv_count < WINDOW_SIZE){
             if(filesize - count >= (FRAME_SIZE))    size = (FRAME_SIZE / sizeof(char));         // Read the full buffer
             else                                    size = ((filesize - count) / sizeof(char)); // Read a subset of the buffer
             if((packet_id = recv_packet(s,sa,buffer,FRAME_SIZE,offset)) > 0){ // Receive the packet from the peer
                 count += FRAME_SIZE;
                 fwrite(buffer,sizeof(char),size,recv_file);     // Write to the output file
                 cout << "Received packet " << offset << "(" << count << " of " << filesize << " bytes)" << endl;
-                offset = (offset + 1) % WINDOW_SIZE;            // Update the offset
+                offset = (offset + 1) % expected_size;            // Update the offset
             }else{
                 cout << "Error in recv " << recv << endl;
                 nak = offset;
@@ -64,7 +64,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                 cout << "Sent NAK for packet " << nak << endl;
                 break; 
             } // As soon as we send a NAK we can break
-            next = (next + 1) % WINDOW_SIZE;
+            next = (next + 1) % expected_size;
         }
 
         if(count >= filesize) break;
@@ -106,6 +106,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
         int next = 0;
         bool resend = false;
         int packet_id;
+        int pid_max = WINDOW_SIZE + 1;
 
         // Start sending the file
         while (1){
@@ -120,7 +121,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                     fread(buffer,1,FRAME_SIZE,send_file);                       // Read the next block of data
                     memcpy(window + (offset * FRAME_SIZE), buffer, FRAME_SIZE); // Store the data in the local window
                     count += send_packet(s,sa,buffer,FRAME_SIZE,offset);             // Send the packet to peer
-                    offset = (offset + 1) % WINDOW_SIZE;                        // Update the offset
+                    offset = (offset + 1) % pix_max;                        // Update the offset
                     cout << "Sent " << count << " bytes" << endl;
                     frames_outstanding++;
                 }else{
@@ -148,7 +149,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                     break;
                 }
                 memset(buffer, 0, sizeof(buffer));          // Zero the buffer
-                next = (next + 1) % WINDOW_SIZE;             // Update the next frame tracker
+                next = (next + 1) % pid_max;             // Update the next frame tracker
                 frames_outstanding --;
             }
 
