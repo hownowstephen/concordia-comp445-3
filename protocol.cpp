@@ -116,8 +116,6 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                 cout << "Sent " << count << " bytes" << endl;
             }
 
-            frames_outstanding = 0;
-
             // Receive acknowledgments for at least half the frames before continuing sending 
             while(frames_outstanding > 0 || (feof(send_file) and frames_outstanding > 0)){
                 cout << "Waiting for ack" << endl;
@@ -130,6 +128,8 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                 memset(buffer, 0, sizeof(buffer));          // Zero the buffer
                 next = (next + 1) % WINDOW_SIZE;             // Update the next frame tracker
             }
+
+            frames_outstanding = 0;
 
             if(feof(send_file) && !frames_outstanding) break; // Break when done reading the file and all frames are acked
         }
