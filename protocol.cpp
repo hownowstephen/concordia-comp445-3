@@ -21,7 +21,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
     FILE* recv_file = fopen(filename, "wb");
 
-    recv_packet(s, sa, buffer, FRAME_SIZE, 0); // Receives the filesize negotiation packet
+    recv_packet(s, sa, buffer, FRAME_SIZE, 101); // Receives the filesize negotiation packet
 
     memcpy(&filesize, buffer + (3 * sizeof(char)), sizeof(int));
 
@@ -45,16 +45,13 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                 count += FRAME_SIZE;
                 fwrite(buffer,sizeof(char),size,recv_file);     // Write to the output file
                 cout << "Received packet " << offset << " (" << count << " of " << filesize << " bytes)" << endl;
-                offset = (offset + 1) % expected_size;            // Update the offset
+                offset = (offset + 1) % expected_size;    
+                recv_count++;
             }else if(packet_id < 0){
                 cout << "Error in recv " << recv << endl;
                 nak = offset;
                 break;
-            }else{
-                // An already-acked packet should just be ignored
-                continue;
             }
-            recv_count++;
         }
         while(recv_count > 0 || nak >= 0){
             memset(buffer,0,FRAME_SIZE);
@@ -99,7 +96,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
         strncpy(buffer, "SIZ", 3);
         memcpy(buffer + (3 * sizeof(char)), &filesize, sizeof(int)); // Add the size of the element to the buffer
-        send_packet(s,sa,buffer,FRAME_SIZE,0);
+        send_packet(s,sa,buffer,FRAME_SIZE,101);
 
         memset(buffer, 0, sizeof(buffer));
 
