@@ -109,7 +109,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
         // Start sending the file
         while (1){
-
+            // If the acks mismatch with the current send offset, has to be a resend
             if(next != offset) resend = true;
 
             // Send as many frames as available for the given window size
@@ -122,6 +122,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                     count += send_packet(s,sa,buffer,FRAME_SIZE,offset);             // Send the packet to peer
                     offset = (offset + 1) % WINDOW_SIZE;                        // Update the offset
                     cout << "Sent " << count << " bytes" << endl;
+                    frames_outstanding++;
                 }else{
                     // Resend by copying the data from the window
                     memcpy(buffer, window + (next * FRAME_SIZE), FRAME_SIZE);
@@ -129,10 +130,9 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                     cout << "Resent packet " << next << endl;
                     next = (next + 1) % WINDOW_SIZE;
                 }
-                frames_outstanding++;
             }
 
-            // Receive acknowledgments for at least half the frames before continuing sending 
+            // Receive ACKs before continuing sending 
             while(frames_outstanding > 0){
                 cout << "Waiting for ack" << endl;
                 if((packet_id = recv_packet(s,sa,buffer,FRAME_SIZE,next)) == 0){
@@ -152,7 +152,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                 frames_outstanding --;
             }
 
-            if(feof(send_file) && !frames_outstanding) break; // Break when done reading the file and all frames are acked
+            if(feof(send_file) && frames_outstanding == 0) break; // Break when done reading the file and all frames are acked
         }
 
         fclose(send_file);
