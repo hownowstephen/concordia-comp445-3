@@ -52,7 +52,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
             }
             recv_count++;
         }
-        while(recv_count > 0){
+        while(recv_count > 0 || nak >= 0){
             memset(buffer,0,FRAME_SIZE);
             if(next != nak) strncpy(buffer, "ACK", 3);  // Send ACK
             else            strncpy(buffer, "NAK", 3);  // Send NAK
@@ -60,6 +60,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
             recv_count--;
             if(next == nak){
                 offset = nak;
+                cout << "Sent NAK for packet " << nak << endl;
                 break; 
             } // As soon as we send a NAK we can break
             next = (next + 1) % WINDOW_SIZE;
