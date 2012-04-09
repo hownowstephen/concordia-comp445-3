@@ -104,6 +104,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
         int frames_outstanding = 0;
         int next = 0;
         bool resend = false;
+        int packet_id;
 
         // Start sending the file
         while (1){
@@ -133,14 +134,15 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
             // Receive acknowledgments for at least half the frames before continuing sending 
             while(frames_outstanding > 0){
                 cout << "Waiting for ack" << endl;
-                if(recv_packet(s,sa,buffer,FRAME_SIZE,next) == 0){
+                if((packet_id = recv_packet(s,sa,buffer,FRAME_SIZE,next)) == 0){
                     cout << "Client does not seem to have received packet " << next << endl;
                     break;
                 }
                 // Receive acknowledgment from the client
                 cout << "Got " << buffer << " from client" << endl;
                 if(!strncmp(buffer,"NAK", 3)){
-                    cout << "Client sent NAK, rebalancing window and resending" << endl;
+                    cout << "Client sent NAK " << packet_id << ", rebalancing window and resending" << endl;
+    
                     break;
                 }
                 memset(buffer, 0, sizeof(buffer));          // Zero the buffer
