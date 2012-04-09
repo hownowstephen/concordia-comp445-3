@@ -79,6 +79,6 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
             return packet_id;
         }
     }else{
-        return 0;
+        return -1;
     }
 }

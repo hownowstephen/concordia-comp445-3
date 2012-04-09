@@ -41,15 +41,18 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
         while(count < filesize && recv_count < WINDOW_SIZE){
             if(filesize - count >= (FRAME_SIZE))    size = (FRAME_SIZE / sizeof(char));         // Read the full buffer
             else                                    size = ((filesize - count) / sizeof(char)); // Read a subset of the buffer
-            if((packet_id = recv_packet(s,sa,buffer,FRAME_SIZE,offset)) > 0){ // Receive the packet from the peer
+            if((packet_id = recv_packet(s,sa,buffer,FRAME_SIZE,offset)) == offset){ // Receive the packet from the peer
                 count += FRAME_SIZE;
                 fwrite(buffer,sizeof(char),size,recv_file);     // Write to the output file
-                cout << "Received packet " << offset << "(" << count << " of " << filesize << " bytes)" << endl;
+                cout << "Received packet " << offset << " (" << count << " of " << filesize << " bytes)" << endl;
                 offset = (offset + 1) % expected_size;            // Update the offset
-            }else{
+            }else if(packet_id < 0){
                 cout << "Error in recv " << recv << endl;
                 nak = offset;
                 break;
+            }else{
+                // An already-acked packet should just be ignored
+                continue;
             }
             recv_count++;
         }
