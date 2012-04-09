@@ -118,7 +118,8 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                     memcpy(window + (offset * FRAME_SIZE), buffer, FRAME_SIZE); // Store the data in the local window
                 }else{
                     // Resend by copying the data from the window
-                    memcpy(buffer, window + (offset * FRAME_SIZE), FRAME_SIZE);
+                    memcpy(buffer, window + (next * FRAME_SIZE), FRAME_SIZE);
+                    next = (next + 1) % WINDOW_SIZE;
                 }
                 count += send_packet(s,sa,buffer,FRAME_SIZE,offset);             // Send the packet to peer
                 offset = (offset + 1) % WINDOW_SIZE;                        // Update the offset
