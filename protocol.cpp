@@ -148,7 +148,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                 cout << "Got " << buffer << " from client" << endl;
                 if(!strncmp(buffer,"NAK", 3)){
                     cout << "Client sent NAK " << packet_id << ", rebalancing window and resending" << endl;
-                    next = packet_id;
+                    if(packet_id >= 0) next = packet_id;
                     break;
                 }
                 memset(buffer, 0, sizeof(buffer));          // Zero the buffer
