@@ -59,7 +59,7 @@ int main(int argc, char **argv){
             while(1){
                 // Receive a random number from the client
 
-                if(recv_packet(client_socket, sa_out, buffer, RAWBUF_SIZE, 200) == 200){
+                if(recv_packet(server_socket, sa_out, buffer, RAWBUF_SIZE, 200) == 200){
                 if(progress < 1) continue;
                 }else progress = 1;
                 cout << "Received " << buffer << endl;
@@ -68,13 +68,13 @@ int main(int argc, char **argv){
                 // Send acknowledgement to the client along with our random number
                 sprintf(buffer,"RAND %d %d",received,selected);
                 cout << "Sending " << buffer << endl;
-                if(send_packet(client_socket, sa_out, buffer, RAWBUF_SIZE, 100) > 0){
+                if(send_packet(server_socket, sa_out, buffer, RAWBUF_SIZE, 100) > 0){
                 if(progress < 2) continue;
                 }else    progress = 2;
 
                 client_num = 2;
                 // Finally wait for a response from the client with the number
-                if(recv_packet(client_socket, sa_out, buffer, RAWBUF_SIZE, 201) == 201){
+                if(recv_packet(server_socket, sa_out, buffer, RAWBUF_SIZE, 201) == 201){
                 if(progress < 3) continue;
                 }else    progress = 3;
                 cout << "Received " << buffer << endl;
