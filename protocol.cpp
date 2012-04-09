@@ -113,7 +113,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
             if(next != offset) resend = true;
 
             // Send as many frames as available for the given window size
-            while(!feof(send_file) && frames_outstanding < WINDOW_SIZE){
+            while((!feof(send_file) && frames_outstanding < WINDOW_SIZE) || resend){
                 if(next == offset) resend = false;
 
                 if(!resend){
