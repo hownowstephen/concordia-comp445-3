@@ -146,7 +146,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                 }
                 // Receive acknowledgment from the client
                 cout << "Got " << buffer << " from client" << endl;
-                if(!strncmp(buffer,"NAK", 3)){
+                if(!strncmp(buffer,"NAK", 3) or strncmp(buffer, "ACK")){
                     cout << "Client sent NAK " << packet_id << ", rebalancing window and resending" << endl;
                     if(packet_id >= 0) next = packet_id;
                     break;
