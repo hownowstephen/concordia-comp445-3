@@ -119,7 +119,11 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
             // Receive acknowledgments for at least half the frames before continuing sending 
             while(frames_outstanding > 0){
                 cout << "Waiting for ack" << endl;
-                while(recv_packet(s,sa,buffer,FRAME_SIZE,next) == 0){}   // Receive acknowledgment from the client
+                if(recv_packet(s,sa,buffer,FRAME_SIZE,next) == 0){
+                    cout << "Client does not seem to have received packet " << next << endl;
+                    break;
+                }
+                // Receive acknowledgment from the client
                 cout << "Got " << buffer << " from client" << endl;
                 if(!strncmp(buffer,"NAK", 3)){
                     cout << "Client sent NAK, rebalancing window and resending" << endl;
