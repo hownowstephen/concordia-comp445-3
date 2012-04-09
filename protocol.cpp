@@ -129,7 +129,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                     memcpy(buffer, window + (next * FRAME_SIZE), FRAME_SIZE);
                     send_packet(s,sa,buffer,FRAME_SIZE,next);
                     cout << "Resent packet " << next << endl;
-                    next = (next + 1) % WINDOW_SIZE;
+                    next = (next + 1) % pid_max;
                 }
             }
 
