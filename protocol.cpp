@@ -114,7 +114,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
         // Start sending the file
         while (1){
             // If the acks mismatch with the current send offset, has to be a resend
-            if(next != offset) resend = true;
+            if(next != offset && frames_outstanding > 0) resend = true;
 
             // Send as many frames as available for the given window size
             while((!feof(send_file) && frames_outstanding < WINDOW_SIZE) || resend){
