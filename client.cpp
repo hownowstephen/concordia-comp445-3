@@ -80,7 +80,7 @@ int main(void){
 
                 server_num = 1;
                 // Finally wait for a response from the client with the number
-                if(recv_packet(client_socket, sa_out, buffer, RAWBUF_SIZE, 100) == 100){
+                if(recv_packet(client_socket, sa_out, buffer, RAWBUF_SIZE, 100) != 100){
                 if(progress < 2) continue;
                 }else progress = 2;
                 cout << "Received " << buffer << endl;

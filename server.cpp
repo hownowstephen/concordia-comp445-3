@@ -59,7 +59,7 @@ int main(int argc, char **argv){
             while(1){
                 // Receive a random number from the client
 
-                if(recv_packet(server_socket, sa_out, buffer, RAWBUF_SIZE, 200) == 200){
+                if(recv_packet(server_socket, sa_out, buffer, RAWBUF_SIZE, 200) != 200){
                 if(progress < 1) continue;
                 }else progress = 1;
                 cout << "Received " << buffer << endl;
@@ -74,7 +74,7 @@ int main(int argc, char **argv){
 
                 client_num = 2;
                 // Finally wait for a response from the client with the number
-                if(recv_packet(server_socket, sa_out, buffer, RAWBUF_SIZE, 201) == 201){
+                if(recv_packet(server_socket, sa_out, buffer, RAWBUF_SIZE, 201) != 201){
                 if(progress < 3) continue;
                 }else    progress = 3;
                 cout << "Received " << buffer << endl;
