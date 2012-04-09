@@ -136,9 +136,8 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
             // Receive ACKs before continuing sending 
             while(frames_outstanding > 0){
-                cout << "Waiting for ack" << endl;
                 if((packet_id = recv_packet(s,sa,buffer,FRAME_SIZE,next)) < 0){
-                    cout << "Client does not seem to have received packet " << next << endl;
+                    cout << "Client did not ack/nak packet " << next << " resending..." << endl;
                     resend = true;
                     break;
                 }
@@ -146,12 +145,12 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                 cout << "Got " << buffer << " from client" << endl;
                 if(!strncmp(buffer,"NAK", 3) or strncmp(buffer, "ACK", 3)){
                     cout << "Client sent NAK " << packet_id << ", rebalancing window and resending" << endl;
-                    if(packet_id >= 0) next = packet_id;
+                    if(packet_id >= 0) next = packet_id;    // Set the next packet id to send
                     break;
                 }
-                memset(buffer, 0, sizeof(buffer));          // Zero the buffer
-                next = (next + 1) % pid_max;             // Update the next frame tracker
-                frames_outstanding --;
+                memset(buffer, 0, sizeof(buffer));      // Zero the buffer
+                next = (next + 1) % pid_max;            // Update the next frame tracker
+                frames_outstanding --;                  // Another frame has been acked
             }
 
             if(feof(send_file) && frames_outstanding == 0) break; // Break when done reading the file and all frames are acked

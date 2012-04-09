@@ -60,7 +60,7 @@ int main(void){
             // Retrieve the local user name
             GetUserName(cusername,&dwusername);
 
-            /*int selected = rand() % 256;
+            int selected = rand() % 256;
             int received, verify;
 
             int client_num = 0; // Client packet number
@@ -74,13 +74,13 @@ int main(void){
                 // Send acknowledgement to the client along with our random number
                 sprintf(buffer,"RAND %d",selected);
                 cout << "Sending " << buffer << endl;
-                if(sendbuf(client_socket, sa_out, &client_num, buffer, BUFFER_SIZE, true) < 0){
+                if(send_packet(client_socket, sa_out, buffer, RAWBUF_SIZE, 200) > 0){
                 if(progress < 1) continue;
                 }else progress = 1;
 
                 server_num = 1;
                 // Finally wait for a response from the client with the number
-                if(recvbuf(client_socket, sa_out, &server_num, buffer, BUFFER_SIZE, true) < 0){
+                if(recv_packet(client_socket, sa_out, buffer, RAWBUF_SIZE, 100) == 100){
                 if(progress < 2) continue;
                 }else progress = 2;
                 cout << "Received " << buffer << endl;
@@ -90,21 +90,23 @@ int main(void){
                 // Send acknowledgement to the client along with our random number
                 sprintf(buffer,"RAND %d",received);
                 cout << "Sending " << buffer << endl;
-                if(sendbuf(client_socket, sa_out, &client_num, buffer, BUFFER_SIZE, true) < 0){
+                if(send_packet(client_socket, sa_out, buffer, RAWBUF_SIZE, 201) > 0){
                 if(progress < 3) continue;
                 }else progress = 3;
 
                 if(progress == 3) break;
             }
 
-            client_num = selected & 0x1;
-            server_num = received & 0x1;
+            client_num = selected % WINDOW_SIZE + 1;
+            server_num = received % WINDOW_SIZE + 1;
 
             cout << "Starting with server packet " << server_num << " and client packet " << client_num << endl;
-            */
+
+            exit(0);
+
             // Send client headers
             sprintf(buffer,HEADER, cusername, direction, filename); 
-            send_packet(client_socket,sa_out,buffer,RAWBUF_SIZE,100);
+            send_packet(client_socket,sa_out,buffer,RAWBUF_SIZE,777);
 
             // Perform a get request
             if(!strcmp(direction,GET)){

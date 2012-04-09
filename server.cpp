@@ -48,7 +48,7 @@ int main(int argc, char **argv){
         while(1){
 
             char buffer[RAWBUF_SIZE]; // buffer object
-            /*int server_num = 0;         // client packet tracer
+            int server_num = 0;         // client packet tracer
             int client_num = 0;         // server packet tracer
 
             int selected = rand() % 256;
@@ -57,27 +57,24 @@ int main(int argc, char **argv){
             int progress = 0;
 
             while(1){
-                client_num = 3;
                 // Receive a random number from the client
 
-                if(recvbuf(server_socket,sa_out,&client_num,buffer, BUFFER_SIZE, true) < 0){
+                if(recv_packet(client_socket, sa_out, buffer, RAWBUF_SIZE, 200) == 200){
                 if(progress < 1) continue;
                 }else progress = 1;
                 cout << "Received " << buffer << endl;
                 sscanf(buffer,"RND %d",&received);
 
-
-                server_num = 1;
                 // Send acknowledgement to the client along with our random number
                 sprintf(buffer,"RAND %d %d",received,selected);
                 cout << "Sending " << buffer << endl;
-                if(sendbuf(server_socket, sa_out, &server_num, buffer, BUFFER_SIZE, true) < 0){
+                if(send_packet(client_socket, sa_out, buffer, RAWBUF_SIZE, 100) > 0){
                 if(progress < 2) continue;
                 }else    progress = 2;
 
                 client_num = 2;
                 // Finally wait for a response from the client with the number
-                if(recvbuf(server_socket, sa_out, &client_num, buffer, BUFFER_SIZE, true) < 0){
+                if(recv_packet(client_socket, sa_out, buffer, RAWBUF_SIZE, 201) == 201){
                 if(progress < 3) continue;
                 }else    progress = 3;
                 cout << "Received " << buffer << endl;
@@ -86,13 +83,15 @@ int main(int argc, char **argv){
                 if(progress == 3) break;
             }
 
-            client_num = received & 0x1;
-            server_num = selected & 0x1;
+            client_num = received % WINDOW_SIZE + 1;
+            server_num = selected % WINDOW_SIZE + 1;
 
             cout << "Starting with server packet " << server_num << " and client packet " << client_num << endl;*/
 
+            exit(0);
+
             // Receive header data from the client
-            if(recv_packet(server_socket, sa_out, buffer, RAWBUF_SIZE, 100) > 0){
+            if(recv_packet(server_socket, sa_out, buffer, RAWBUF_SIZE, 777) > 0){
 
                 // Extract data from the headers
                 char cusername[128], filename[128], direction[3];
