@@ -86,7 +86,7 @@ int main(int argc, char **argv){
             client_num = received % WINDOW_SIZE + 1;
             server_num = selected % WINDOW_SIZE + 1;
 
-            cout << "Starting with server packet " << server_num << " and client packet " << client_num << endl;*/
+            cout << "Starting with server packet " << server_num << " and client packet " << client_num << endl;
 
             exit(0);
 
