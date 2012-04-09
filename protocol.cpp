@@ -45,9 +45,10 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                 fwrite(buffer,sizeof(char),size,recv_file);     // Write to the output file
                 cout << "Received packet " << offset << "(" << count << " of " << filesize << " bytes)" << endl;
                 offset = (offset + 1) % WINDOW_SIZE;            // Update the offset
-            }else if(recv < 0){
+            }else{
                 cout << "Error in recv " << recv << endl;
                 nak = offset;
+                break;
             }
             recv_count++;
         }
@@ -115,15 +116,19 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                 cout << "Sent " << count << " bytes" << endl;
             }
 
+            frames_outstanding = 0;
+
             // Receive acknowledgments for at least half the frames before continuing sending 
             while(frames_outstanding > 0 || (feof(send_file) and frames_outstanding > 0)){
                 cout << "Waiting for ack" << endl;
                 while(recv_packet(s,sa,buffer,FRAME_SIZE,next) == 0){}   // Receive acknowledgment from the client
                 cout << "Got " << buffer << " from client" << endl;
-                if(!strcmp(buffer,"NAK")) cout << "Client sent NAK, rebalancing window and resending" << endl;
+                if(!strncmp(buffer,"NAK", 3)){
+                    cout << "Client sent NAK, rebalancing window and resending" << endl;
+                    break;
+                }
                 memset(buffer, 0, sizeof(buffer));          // Zero the buffer
                 next = (next + 1) % WINDOW_SIZE;             // Update the next frame tracker
-                frames_outstanding --;
             }
 
             if(feof(send_file) && !frames_outstanding) break; // Break when done reading the file and all frames are acked
