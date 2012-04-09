@@ -118,6 +118,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                 if(next == offset) resend = false;
 
                 if(!resend){
+                    if(feof(send_file)) break;
                     fread(buffer,1,FRAME_SIZE,send_file);                       // Read the next block of data
                     memcpy(window + (offset * FRAME_SIZE), buffer, FRAME_SIZE); // Store the data in the local window
                     count += send_packet(s,sa,buffer,FRAME_SIZE,offset);             // Send the packet to peer
