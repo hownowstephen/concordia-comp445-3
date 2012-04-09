@@ -102,14 +102,24 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
         int offset = 0;
         int frames_outstanding = 0;
         int next = 0;
+        bool resend = false;
 
         // Start sending the file
         while (1){
 
+            if(next != offset) resend = true;
+
             // Send as many frames as available for the given window size
             while(!feof(send_file) && frames_outstanding < WINDOW_SIZE){
-                fread(buffer,1,FRAME_SIZE,send_file);                       // Read the next block of data
-                memcpy(window + (offset * FRAME_SIZE), buffer, FRAME_SIZE); // Store the data in the local window
+                if(next == offset) resend = false;
+
+                if(!resend){
+                    fread(buffer,1,FRAME_SIZE,send_file);                       // Read the next block of data
+                    memcpy(window + (offset * FRAME_SIZE), buffer, FRAME_SIZE); // Store the data in the local window
+                }else{
+                    // Resend by copying the data from the window
+                    memcpy(buffer, window + (offset * FRAME_SIZE), FRAME_SIZE);
+                }
                 count += send_packet(s,sa,buffer,FRAME_SIZE,offset);             // Send the packet to peer
                 offset = (offset + 1) % WINDOW_SIZE;                        // Update the offset
                 frames_outstanding++;
