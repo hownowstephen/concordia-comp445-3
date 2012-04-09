@@ -143,15 +143,13 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
                 cout << "Got " << buffer << " from client" << endl;
                 if(!strncmp(buffer,"NAK", 3)){
                     cout << "Client sent NAK " << packet_id << ", rebalancing window and resending" << endl;
-    
+                    next = packet_id;
                     break;
                 }
                 memset(buffer, 0, sizeof(buffer));          // Zero the buffer
                 next = (next + 1) % WINDOW_SIZE;             // Update the next frame tracker
                 frames_outstanding --;
             }
-
-            frames_outstanding = 0;
 
             if(feof(send_file) && !frames_outstanding) break; // Break when done reading the file and all frames are acked
         }
