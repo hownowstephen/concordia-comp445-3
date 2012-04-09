@@ -75,13 +75,7 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
             int packet_id;
             memset(buffer,0,size); // Clear the buffer to prepare to receive data
             split_packet(packet, buffer, size, &packet_id);
-
-            cout << "Got packet " << packet_id << endl;
-            if(pid == packet_id){
-                return ibytesrecv - sizeof(int);  // Return the amount of data received
-            }else{
-                return -1 * packet_id;   // Return the negation of the packet id actually received
-            }
+            return packet_id;
         }
     }else{
         return 0;

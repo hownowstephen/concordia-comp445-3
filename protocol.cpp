@@ -32,6 +32,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
     int expected_size = WINDOW_SIZE;
     int recv_count, nak;
     int next = 0;
+    int packet_id;
     // Receive the file
     while(1){
         nak = -1;
@@ -40,8 +41,8 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
         while(count < filesize && recv_count < expected_size){
             if(filesize - count >= (FRAME_SIZE))    size = (FRAME_SIZE / sizeof(char));         // Read the full buffer
             else                                    size = ((filesize - count) / sizeof(char)); // Read a subset of the buffer
-            if((recv = recv_packet(s,sa,buffer,FRAME_SIZE,offset)) > 0){ // Receive the packet from the peer
-                count += recv;
+            if((packet_id = recv_packet(s,sa,buffer,FRAME_SIZE,offset)) > 0){ // Receive the packet from the peer
+                count += FRAME_SIZE;
                 fwrite(buffer,sizeof(char),size,recv_file);     // Write to the output file
                 cout << "Received packet " << offset << "(" << count << " of " << filesize << " bytes)" << endl;
                 offset = (offset + 1) % WINDOW_SIZE;            // Update the offset
