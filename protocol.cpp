@@ -21,55 +21,58 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
     FILE* recv_file = fopen(filename, "wb");
 
-    recv_packet(s, sa, buffer, FRAME_SIZE, 101); // Receives the filesize negotiation packet
+    if(recv_safe(s, sa, buffer, FRAME_SIZE, 101) == 101){ // Receives the filesize negotiation packet
 
-    memcpy(&filesize, buffer + (3 * sizeof(char)), sizeof(int));
+        memcpy(&filesize, buffer + (3 * sizeof(char)), sizeof(int));
 
-    cout << "File size: " << filesize << endl;
+        cout << "File size: " << filesize << endl;
 
-    offset = recv = count = 0;
+        offset = recv = count = 0;
 
-    int expected_size = WINDOW_SIZE + 1;
-    int recv_count, nak;
-    int next = 0;
-    int packet_id;
-    // Receive the file
-    while(1){
-        nak = -1;
-        recv_count = 0;
-        next = offset;
-        while(count < filesize && recv_count < WINDOW_SIZE){
-            if(filesize - count >= (FRAME_SIZE))    size = (FRAME_SIZE / sizeof(char));         // Read the full buffer
-            else                                    size = ((filesize - count) / sizeof(char)); // Read a subset of the buffer
-            if((packet_id = recv_packet(s,sa,buffer,FRAME_SIZE,offset)) == offset){ // Receive the packet from the peer
-                count += FRAME_SIZE;
-                fwrite(buffer,sizeof(char),size,recv_file);     // Write to the output file
-                cout << "Received packet " << offset << " (" << count << " of " << filesize << " bytes)" << endl;
-                offset = (offset + 1) % expected_size;    
-                recv_count++;
-            }else if(packet_id < 0){
-                cout << "Error in recv " << recv << endl;
-                nak = offset;
-                break;
+        int expected_size = WINDOW_SIZE + 1;
+        int recv_count, nak;
+        int next = 0;
+        int packet_id;
+        // Receive the file
+        while(1){
+            nak = -1;
+            recv_count = 0;
+            next = offset;
+            while(count < filesize && recv_count < WINDOW_SIZE){
+                if(filesize - count >= (FRAME_SIZE))    size = (FRAME_SIZE / sizeof(char));         // Read the full buffer
+                else                                    size = ((filesize - count) / sizeof(char)); // Read a subset of the buffer
+                if((packet_id = recv_packet(s,sa,buffer,FRAME_SIZE,offset)) == offset){ // Receive the packet from the peer
+                    count += FRAME_SIZE;
+                    fwrite(buffer,sizeof(char),size,recv_file);     // Write to the output file
+                    cout << "Received packet " << offset << " (" << count << " of " << filesize << " bytes)" << endl;
+                    offset = (offset + 1) % expected_size;    
+                    recv_count++;
+                }else if(packet_id < 0){
+                    cout << "Error in recv " << recv << endl;
+                    nak = offset;
+                    break;
+                }
             }
-        }
-        while(recv_count > 0 || nak >= 0){
-            memset(buffer,0,FRAME_SIZE);
-            if(next != nak) strncpy(buffer, "ACK", 3);  // Send ACK
-            else            strncpy(buffer, "NAK", 3);  // Send NAK
-            send_packet(s,sa,buffer,FRAME_SIZE,next); // Send acknowledgement
-            recv_count--;
-            if(next == nak){
-                offset = nak;
-                cout << "Sent NAK for packet " << nak << endl;
-                break; 
-            } // As soon as we send a NAK we can break
-            next = (next + 1) % expected_size;
-        }
+            while(recv_count > 0 || nak >= 0){
+                memset(buffer,0,FRAME_SIZE);
+                if(next != nak) strncpy(buffer, "ACK", 3);  // Send ACK
+                else            strncpy(buffer, "NAK", 3);  // Send NAK
+                send_packet(s,sa,buffer,FRAME_SIZE,next); // Send acknowledgement
+                recv_count--;
+                if(next == nak){
+                    offset = nak;
+                    cout << "Sent NAK for packet " << nak << endl;
+                    break; 
+                } // As soon as we send a NAK we can break
+                next = (next + 1) % expected_size;
+            }
 
-        if(count >= filesize) break;
+            if(count >= filesize) break;
+        }
+        fclose(recv_file);
+    }else{
+        return get(s, sa, username, filename);
     }
-    fclose(recv_file);
 }
 
 /**
@@ -96,67 +99,71 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
 
         strncpy(buffer, "SIZ", 3);
         memcpy(buffer + (3 * sizeof(char)), &filesize, sizeof(int)); // Add the size of the element to the buffer
-        send_packet(s,sa,buffer,FRAME_SIZE,101);
+        if(send_safe(s,sa,buffer,FRAME_SIZE,101) == 101){
 
-        memset(buffer, 0, sizeof(buffer));
+            memset(buffer, 0, sizeof(buffer));
 
-        int count = 0;
-        int offset = 0;
-        int frames_outstanding = 0;
-        int next = 0;
-        bool resend = false;
-        int packet_id;
-        int pid_max = WINDOW_SIZE + 1;
+            int count = 0;
+            int offset = 0;
+            int frames_outstanding = 0;
+            int next = 0;
+            bool resend = false;
+            int packet_id;
+            int pid_max = WINDOW_SIZE + 1;
 
-        // Start sending the file
-        while (1){
-            // If the acks mismatch with the current send offset, has to be a resend
-            if(next != offset && frames_outstanding > 0) resend = true;
+            // Start sending the file
+            while (1){
+                // If the acks mismatch with the current send offset, has to be a resend
+                if(next != offset && frames_outstanding > 0) resend = true;
 
-            // Send as many frames as available for the given window size
-            while((!feof(send_file) && frames_outstanding < WINDOW_SIZE) || resend){
-                if(next == offset) resend = false;
+                // Send as many frames as available for the given window size
+                while((!feof(send_file) && frames_outstanding < WINDOW_SIZE) || resend){
+                    if(next == offset) resend = false;
 
-                if(!resend){
-                    if(feof(send_file)) break;
-                    fread(buffer,1,FRAME_SIZE,send_file);                       // Read the next block of data
-                    memcpy(window + (offset * FRAME_SIZE), buffer, FRAME_SIZE); // Store the data in the local window
-                    count += send_packet(s,sa,buffer,FRAME_SIZE,offset);             // Send the packet to peer
-                    offset = (offset + 1) % pid_max;                        // Update the offset
-                    cout << "Sent " << count << " bytes" << endl;
-                    frames_outstanding++;
-                }else{
-                    // Resend by copying the data from the window
-                    memcpy(buffer, window + (next * FRAME_SIZE), FRAME_SIZE);
-                    send_packet(s,sa,buffer,FRAME_SIZE,next);
-                    cout << "Resent packet " << next << endl;
-                    next = (next + 1) % pid_max;
+                    if(!resend){
+                        if(feof(send_file)) break;
+                        fread(buffer,1,FRAME_SIZE,send_file);                       // Read the next block of data
+                        memcpy(window + (offset * FRAME_SIZE), buffer, FRAME_SIZE); // Store the data in the local window
+                        count += send_packet(s,sa,buffer,FRAME_SIZE,offset);             // Send the packet to peer
+                        offset = (offset + 1) % pid_max;                        // Update the offset
+                        cout << "Sent " << count << " bytes" << endl;
+                        frames_outstanding++;
+                    }else{
+                        // Resend by copying the data from the window
+                        memcpy(buffer, window + (next * FRAME_SIZE), FRAME_SIZE);
+                        send_packet(s,sa,buffer,FRAME_SIZE,next);
+                        cout << "Resent packet " << next << endl;
+                        next = (next + 1) % pid_max;
+                    }
                 }
+
+                // Receive ACKs before continuing sending 
+                while(frames_outstanding > 0){
+                    if((packet_id = recv_packet(s,sa,buffer,FRAME_SIZE,next)) < 0){
+                        cout << "Client did not ack/nak packet " << next << " resending..." << endl;
+                        resend = true;
+                        break;
+                    }
+                    // Receive acknowledgment from the client
+                    cout << "Got " << buffer << " from client" << endl;
+                    if(!strncmp(buffer,"NAK", 3) or strncmp(buffer, "ACK", 3)){
+                        cout << "Client sent NAK " << packet_id << ", rebalancing window and resending" << endl;
+                        if(packet_id >= 0) next = packet_id;    // Set the next packet id to send
+                        break;
+                    }
+                    memset(buffer, 0, sizeof(buffer));      // Zero the buffer
+                    next = (next + 1) % pid_max;            // Update the next frame tracker
+                    frames_outstanding --;                  // Another frame has been acked
+                }
+
+                if(feof(send_file) && frames_outstanding == 0) break; // Break when done reading the file and all frames are acked
             }
 
-            // Receive ACKs before continuing sending 
-            while(frames_outstanding > 0){
-                if((packet_id = recv_packet(s,sa,buffer,FRAME_SIZE,next)) < 0){
-                    cout << "Client did not ack/nak packet " << next << " resending..." << endl;
-                    resend = true;
-                    break;
-                }
-                // Receive acknowledgment from the client
-                cout << "Got " << buffer << " from client" << endl;
-                if(!strncmp(buffer,"NAK", 3) or strncmp(buffer, "ACK", 3)){
-                    cout << "Client sent NAK " << packet_id << ", rebalancing window and resending" << endl;
-                    if(packet_id >= 0) next = packet_id;    // Set the next packet id to send
-                    break;
-                }
-                memset(buffer, 0, sizeof(buffer));      // Zero the buffer
-                next = (next + 1) % pid_max;            // Update the next frame tracker
-                frames_outstanding --;                  // Another frame has been acked
-            }
-
-            if(feof(send_file) && frames_outstanding == 0) break; // Break when done reading the file and all frames are acked
+            fclose(send_file);
+        }else{
+            fclose(send_file);
+            return put(s,sa,username,filename);
         }
-
-        fclose(send_file);
     }
 
 }
