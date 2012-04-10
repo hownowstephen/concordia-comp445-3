@@ -126,7 +126,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
                         if(feof(send_file)) break;
                         fread(buffer,1,FRAME_SIZE,send_file);                       // Read the next block of data
                         memcpy(window + (offset * FRAME_SIZE), buffer, FRAME_SIZE); // Store the data in the local window
-                        count += send_packet(s,sa,buffer,FRAME_SIZE,offset);             // Send the packet to peer
+                        send_packet(s,sa,buffer,FRAME_SIZE,offset);             // Send the packet to peer
                         offset = (offset + 1) % pid_max;                        // Update the offset
                         cout << "Sent " << count << " bytes" << endl;
                         frames_outstanding++;
@@ -155,6 +155,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
                         frames_outstanding = 0;
                         break;
                     }
+                    count += FRAME_SIZE;                    // Increment the counter
                     memset(buffer, 0, sizeof(buffer));      // Zero the buffer
                     next = (next + 1) % pid_max;            // Update the next frame tracker
                     frames_outstanding --;                  // Another frame has been acked
