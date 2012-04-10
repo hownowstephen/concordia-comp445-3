@@ -29,6 +29,7 @@ int main(void){
     char router[11];                                    // Host data
     char cusername[128], filename[128], direction[3];   // Other header data
     DWORD dwusername = sizeof(cusername);               // Retains the size of the username
+    char trace_data[128];
 
     FILE* logfile = fopen("client.log", "w");
 
@@ -106,8 +107,8 @@ int main(void){
             client_num = selected % WINDOW_SIZE + 1;
             server_num = received % WINDOW_SIZE + 1;
 
-            cout << "Starting with server packet " << server_num << " and client packet " << client_num << endl;
-
+            sprintf(trace_data, "negotiated srv %d and cli %d", server_num, client_num);
+            write_log(logfile, cusername, trace_data);
             // Send client headers
             sprintf(buffer,HEADER, cusername, direction, filename); 
             while((rcv = send_safe(client_socket,sa_out,buffer,RAWBUF_SIZE,777)) != 777){

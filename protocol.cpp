@@ -18,6 +18,7 @@
 void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_num, int server_num, FILE* logfile){
     char buffer[FRAME_SIZE];
     int count, offset, recv, filesize, size;
+    char tracebuf[128];
 
     FILE* recv_file = fopen(filename, "wb");
 
@@ -25,7 +26,10 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
 
         memcpy(&filesize, buffer + (3 * sizeof(char)), sizeof(int));
 
-        cout << "File size: " << filesize << endl;
+        cout << "Got filesize " << filesize << " starting transfer..." << endl;
+
+        sprintf(tracebuf, "Filesize %d", filesize);
+        write_log(logfile, username, tracebuf);
 
         offset = recv = count = 0;
 
@@ -44,7 +48,10 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
                 if((packet_id = recv_packet(s,sa,buffer,FRAME_SIZE,offset)) == offset){ // Receive the packet from the peer
                     count += FRAME_SIZE;
                     fwrite(buffer,sizeof(char),size,recv_file);     // Write to the output file
-                    cout << "Received packet " << offset << " (" << count << " of " << filesize << " bytes)" << endl;
+                    
+                    sprintf(tracebuf, "Recv %d (%d of %d)", offset, count, filesize);
+                    write_log(logfile, username, tracebuf);
+
                     offset = (offset + 1) % expected_size;    
                     recv_count++;
                 }else if(packet_id < 0){
@@ -64,7 +71,8 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
                 recv_count--;
                 if(next == nak){
                     offset = nak;
-                    cout << "Sent NAK for packet " << nak << endl;
+                    sprintf(tracebuf, "Sent NAK for %d", nak);
+                    write_log(logfile, username, tracebuf);
                     break; 
                 } // As soon as we send a NAK we can break
                 next = (next + 1) % expected_size;
@@ -74,6 +82,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
         }
         strncpy(buffer, "ALL", 3);
         send_packet(s, sa, buffer, FRAME_SIZE, next);
+        cout << "Transfer completed! " << count << " bytes received" << endl;
         fclose(recv_file);
     }else{
         fclose(recv_file);
@@ -91,6 +100,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
     char buffer[FRAME_SIZE];                // send buffer
     int filesize;
     int size = 0, sent = 0;                 // Trace variables
+    char tracebuf[128];
 
     FILE* send_file;
 
@@ -101,11 +111,14 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
         filesize = ftell(send_file);
         fseek(send_file, 0L, SEEK_SET);
 
-        cout << "File size: " << filesize << endl;
+        sprintf(tracebuf, "Filesize %d", filesize);
+        write_log(logfile, username, tracebuf);
 
         strncpy(buffer, "SIZ", 3);
         memcpy(buffer + (3 * sizeof(char)), &filesize, sizeof(int)); // Add the size of the element to the buffer
         if(send_safe(s,sa,buffer,FRAME_SIZE,101) == 101){
+
+            cout << "Sent filesize, starting transfer..." << endl;
 
             memset(buffer, 0, sizeof(buffer));
 
@@ -132,13 +145,13 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
                         memcpy(window + (offset * FRAME_SIZE), buffer, FRAME_SIZE); // Store the data in the local window
                         send_packet(s,sa,buffer,FRAME_SIZE,offset);             // Send the packet to peer
                         offset = (offset + 1) % pid_max;                        // Update the offset
-                        cout << "Sent " << count << " bytes" << endl;
                         frames_outstanding++;
                     }else{
                         // Resend by copying the data from the window
                         memcpy(buffer, window + (next * FRAME_SIZE), FRAME_SIZE);
                         send_packet(s,sa,buffer,FRAME_SIZE,next);
-                        cout << "Resent packet " << next << endl;
+                        sprintf(tracebuf, "Resending packet %d", next);
+                        write_log(logfile, username, tracebuf);
                         next = (next + 1) % pid_max;
                     }
                 }
@@ -151,7 +164,6 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
                         break;
                     }
                     // Receive acknowledgment from the client
-                    cout << "Got " << buffer << " from client" << endl;
                     if(!strncmp(buffer,"NAK", 3)){
                         if(packet_id >= 0) next = packet_id;    // Set the next packet id to send
                         break;
@@ -160,6 +172,8 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
                         break;
                     }
                     count += FRAME_SIZE;                    // Increment the counter
+                    sprintf(tracebuf, "Sent %d bytes", count);
+                    write_log(logfile, username, tracebuf);
                     memset(buffer, 0, sizeof(buffer));      // Zero the buffer
                     next = (next + 1) % pid_max;            // Update the next frame tracker
                     frames_outstanding --;                  // Another frame has been acked

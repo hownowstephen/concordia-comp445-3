@@ -10,6 +10,7 @@ using namespace std;
 
 void write_log(FILE* logfile, char* username, char* message){
     fprintf(logfile, "%s > %s", username, message);
+    memset(message, 0, sizeof(message));
 }
 
 /**
