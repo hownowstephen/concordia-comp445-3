@@ -5,7 +5,7 @@
 #define PEER_PORT1  5000    // peer port number 1 (server)
 #define PEER_PORT2  5001    // peer port number 2 (client)
 #define FRAME_SIZE  512     // Size (in bytes) of each packet
-#define WINDOW_SIZE 5
+#define WINDOW_SIZE 19
 
 #define GET "get"           // Method name for GET requests
 #define PUT "put"           // Method name for PUT requests
@@ -15,7 +15,7 @@
  * GET function
  * Performs the receiving half of a request
  */
-void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
+void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_num, int server_num){
     char buffer[FRAME_SIZE];
     int count, offset, recv, filesize, size;
 
@@ -71,7 +71,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
         }
         fclose(recv_file);
     }else{
-        return get(s, sa, username, filename);
+        return get(s, sa, username, filename, client_num, server_num);
     }
 }
 
@@ -79,7 +79,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
  * PUT function
  * Performs the sending half of a request
  */
-void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
+void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_num, int server_num){
 
     char window[FRAME_SIZE * WINDOW_SIZE];  // data retention window
     char buffer[FRAME_SIZE];                // send buffer
@@ -162,7 +162,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename){
             fclose(send_file);
         }else{
             fclose(send_file);
-            return put(s,sa,username,filename);
+            return put(s,sa,username,filename, client_num, server_num);
         }
     }
 

@@ -104,9 +104,9 @@ int main(int argc, char **argv){
 
                 // Respond to the client request
                 if(!strcmp(direction,GET)){
-                    put(server_socket, sa_out, "SERVER", filename);
+                    put(server_socket, sa_out, "SERVER", filename, client_num, server_num);
                 }else if(!strcmp(direction,PUT)){
-                    get(server_socket, sa_out, "SERVER", filename);
+                    get(server_socket, sa_out, "SERVER", filename, client_num, server_num);
                 }else   throw "Requested protocol does not exist";
             }
         }
