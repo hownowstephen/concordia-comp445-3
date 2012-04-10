@@ -15,7 +15,7 @@
  * GET function
  * Performs the receiving half of a request
  */
-void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_num, int server_num){
+void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_num, int server_num, FILE* logfile){
     char buffer[FRAME_SIZE];
     int count, offset, recv, filesize, size;
 
@@ -71,7 +71,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
         }
         fclose(recv_file);
     }else{
-        return get(s, sa, username, filename, client_num, server_num);
+        return get(s, sa, username, filename, client_num, server_num, logfile);
     }
 }
 
@@ -79,7 +79,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
  * PUT function
  * Performs the sending half of a request
  */
-void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_num, int server_num){
+void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_num, int server_num, FILE* logfile){
 
     char window[FRAME_SIZE * WINDOW_SIZE];  // data retention window
     char buffer[FRAME_SIZE];                // send buffer
@@ -140,7 +140,6 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
                 // Receive ACKs before continuing sending 
                 while(frames_outstanding > 0){
                     if((packet_id = recv_packet(s,sa,buffer,FRAME_SIZE,next)) < 0){
-                        cout << "Client did not ack/nak packet " << next << " resending..." << endl;
                         if(count < filesize) resend = true;
                         else frames_outstanding --;
                         break;
@@ -148,7 +147,6 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
                     // Receive acknowledgment from the client
                     cout << "Got " << buffer << " from client" << endl;
                     if(!strncmp(buffer,"NAK", 3) or strncmp(buffer, "ACK", 3)){
-                        cout << "Client sent NAK " << packet_id << ", rebalancing window and resending" << endl;
                         if(packet_id >= 0) next = packet_id;    // Set the next packet id to send
                         break;
                     }
@@ -163,7 +161,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
             fclose(send_file);
         }else{
             fclose(send_file);
-            return put(s,sa,username,filename, client_num, server_num);
+            return put(s,sa,username,filename, client_num, server_num, logfile);
         }
     }
 

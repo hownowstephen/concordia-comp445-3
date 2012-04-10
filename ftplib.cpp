@@ -8,8 +8,8 @@ using namespace std;
 
 #define TIMEOUT_USEC 300000
 
-void log_transaction(char* message, FILE* logfile){
-
+void trace(FILE* logfile, char* username, const char* message){
+    fprintf(logfile, "%s > %s", username, message);
 }
 
 /**
@@ -43,7 +43,6 @@ int send_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
     if ((ibytessent = sendto(sock,packet,packet_size,0,(SOCKADDR*)&sa, from)) == SOCKET_ERROR){
         throw "Send failed"; 
     }else{
-        cout << "Sent packet " << pid << endl;
         memset(buffer,0,size);  // Zero the buffer
         return ibytessent - sizeof(int);      // Return the number of sent bytes
     }   
@@ -75,7 +74,6 @@ int recv_packet(SOCKET sock, SOCKADDR_IN sa, char* buffer, int size, int pid){
             int packet_id;
             memset(buffer,0,size); // Clear the buffer to prepare to receive data
             split_packet(packet, buffer, size, &packet_id);
-            cout << "Received packet " << packet_id << endl;
             return packet_id;
         }
     }else{

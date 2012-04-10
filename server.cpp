@@ -24,6 +24,9 @@ int main(int argc, char **argv){
     SOCKADDR_IN sa_out;         // fill with router info
     WSADATA wsadata;            // Winsock connection object
     char router[11];            // Store the name of the router
+    char* trace_data;
+
+    FILE* logfile = fopen("server.log", 'w');
      
     try {
         if (WSAStartup(0x0202,&wsadata)!=0){  
@@ -90,7 +93,9 @@ int main(int argc, char **argv){
             client_num = received % WINDOW_SIZE + 1;
             server_num = selected % WINDOW_SIZE + 1;
 
-            cout << "Starting with server packet " << server_num << " and client packet " << client_num << endl;
+            memset(trace_data, 0, sizeof(trace_data));
+            sprintf(trace_data, "negotiated srv %d and cli %d", server_num, client_num);
+            trace(logfile, "SERVER", trace_data);
 
             // Receive header data from the client
             if(recv_safe(server_socket, sa_out, buffer, RAWBUF_SIZE, 777) == 777){
@@ -100,13 +105,15 @@ int main(int argc, char **argv){
                 sscanf(buffer,HEADER,cusername,direction,filename);
 
                 // Print out the information
-                cout << "Client " << cusername << " requesting to " << direction << " file " << filename << endl;
+                memset(trace_data, 0, sizeof(trace_data));
+                sprintf(trace_data, "client %s requesting %s of %s", cusername, direction, filename)
+                trace(logfile, "SERVER", trace_data);
 
                 // Respond to the client request
                 if(!strcmp(direction,GET)){
-                    put(server_socket, sa_out, "SERVER", filename, client_num, server_num);
+                    put(server_socket, sa_out, "SERVER", filename, client_num, server_num, logfile);
                 }else if(!strcmp(direction,PUT)){
-                    get(server_socket, sa_out, "SERVER", filename, client_num, server_num);
+                    get(server_socket, sa_out, "SERVER", filename, client_num, server_num, logfile);
                 }else   throw "Requested protocol does not exist";
             }
         }

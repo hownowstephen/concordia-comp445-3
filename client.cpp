@@ -30,6 +30,8 @@ int main(void){
     char cusername[128], filename[128], direction[3];   // Other header data
     DWORD dwusername = sizeof(cusername);               // Retains the size of the username
 
+    FILE* logfile = fopen("client.log", 'w');
+
     try {
 
         if (WSAStartup(0x0202,&wsadata)!=0){  
@@ -116,10 +118,10 @@ int main(void){
 
             // Perform a get request
             if(!strcmp(direction,GET)){
-                get(client_socket, sa_out, cusername, filename, client_num, server_num);
+                get(client_socket, sa_out, cusername, filename, client_num, server_num, logfile);
                 
             }else if(!strcmp(direction,PUT)){
-                put(client_socket, sa_out, cusername, filename, client_num, server_num);
+                put(client_socket, sa_out, cusername, filename, client_num, server_num, logfile);
             }
 
         }else{
