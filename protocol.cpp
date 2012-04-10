@@ -4,7 +4,7 @@
 #define ROUTER_PORT2 7001   // router port number 2 (client)
 #define PEER_PORT1  5000    // peer port number 1 (server)
 #define PEER_PORT2  5001    // peer port number 2 (client)
-#define FRAME_SIZE  512     // Size (in bytes) of each packet
+#define FRAME_SIZE  128     // Size (in bytes) of each packet
 #define WINDOW_SIZE 19
 
 #define GET "get"           // Method name for GET requests
