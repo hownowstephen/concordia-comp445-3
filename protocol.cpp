@@ -69,6 +69,8 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
 
             if(count >= filesize) break;
         }
+        strncpy(buffer, "ALL", 3);
+        send_packet(s, sa, buffer, FRAME_SIZE, next);
         fclose(recv_file);
     }else{
         return get(s, sa, username, filename, client_num, server_num, logfile);
@@ -141,13 +143,16 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
                 while(frames_outstanding > 0){
                     if((packet_id = recv_packet(s,sa,buffer,FRAME_SIZE,next)) < 0){
                         if(count < filesize) resend = true;
-                        else frames_outstanding --;
+                        //else frames_outstanding --;
                         break;
                     }
                     // Receive acknowledgment from the client
                     cout << "Got " << buffer << " from client" << endl;
                     if(!strncmp(buffer,"NAK", 3) or strncmp(buffer, "ACK", 3)){
                         if(packet_id >= 0) next = packet_id;    // Set the next packet id to send
+                        break;
+                    }else if(!strncmp(buffer,"ALL", 3)){
+                        frames_outstanding = 0;
                         break;
                     }
                     memset(buffer, 0, sizeof(buffer));      // Zero the buffer
