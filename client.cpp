@@ -76,14 +76,14 @@ int main(void){
                     sprintf(buffer,"RAND %d",selected);
                     cout << "Sending " << buffer << endl;
                     if(send_safe(client_socket, sa_out, buffer, RAWBUF_SIZE, 200) != 200) continue;
-                    progress = 1;
-                }
 
-                // Finally wait for a response from the server with the number
-                if(recv_safe(client_socket, sa_out, buffer, RAWBUF_SIZE, 100) == 100){
-                    cout << "Received " << buffer << endl;
-                    sscanf(buffer,"RAND %d %d",&verify,&received);
-                }else continue;
+                    // Finally wait for a response from the server with the number
+                    if(recv_safe(client_socket, sa_out, buffer, RAWBUF_SIZE, 100) == 100){
+                        cout << "Received " << buffer << endl;
+                        sscanf(buffer,"RAND %d %d",&verify,&received);
+                    }else continue;
+                        progress = 1;
+                }
 
                 // Send acknowledgement to the server along with our random number
                 memset(buffer, 0, sizeof(buffer));
