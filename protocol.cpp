@@ -181,7 +181,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
 
                 if(feof(send_file) && frames_outstanding == 0) break; // Break when done reading the file and all frames are acked
             }
-
+            cout << "File transfer completed, sent " << count << " bytes" << endl;
             fclose(send_file);
         }else{
             fclose(send_file);

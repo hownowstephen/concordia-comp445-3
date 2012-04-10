@@ -59,6 +59,8 @@ int main(int argc, char **argv){
 
             int progress = 0;
             int rcv;
+            
+            cout << "Starting packet ID negotiation..." << endl;
 
             while(1){
 
@@ -92,6 +94,8 @@ int main(int argc, char **argv){
 
             client_num = received % WINDOW_SIZE + 1;
             server_num = selected % WINDOW_SIZE + 1;
+
+            cout << "Negotiated server start " << server_num << " and client start " << client_num << endl;
 
             sprintf(trace_data, "negotiated srv %d and cli %d", server_num, client_num);
             write_log(logfile, "SERVER", trace_data);

@@ -72,6 +72,8 @@ int main(void){
             int progress = 0;
             int rcv;
 
+            cout << "Starting packet ID negotiation..." << endl;
+
             while(1){
 
                 // Send a random number to the server
@@ -107,7 +109,9 @@ int main(void){
             client_num = selected % WINDOW_SIZE + 1;
             server_num = received % WINDOW_SIZE + 1;
 
-            sprintf(trace_data, "negotiated srv %d and cli %d", server_num, client_num);
+            cout << "Negotiated server start " << server_num << " and client start " << client_num << endl;
+
+            sprintf(trace_data, "Negotiated srv %d and cli %d", server_num, client_num);
             write_log(logfile, cusername, trace_data);
             // Send client headers
             sprintf(buffer,HEADER, cusername, direction, filename); 

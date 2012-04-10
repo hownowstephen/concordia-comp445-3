@@ -9,7 +9,7 @@ using namespace std;
 #define TIMEOUT_USEC 300000
 
 void write_log(FILE* logfile, char* username, char* message){
-    fprintf(logfile, "%s > %s", username, message);
+    fprintf(logfile, "%s > %s\n", username, message);
     memset(message, 0, sizeof(message));
 }
 
