@@ -110,14 +110,14 @@ int main(void){
             sprintf(buffer,HEADER, cusername, direction, filename); 
             send_packet(client_socket,sa_out,buffer,RAWBUF_SIZE,777);
 
-            
+
 
             // Perform a get request
             if(!strcmp(direction,GET)){
-                get(client_socket, sa_out, cusername, filename);
+                get(client_socket, sa_out, cusername, filename, client_num, server_num);
                 
             }else if(!strcmp(direction,PUT)){
-                put(client_socket, sa_out, cusername, filename);
+                put(client_socket, sa_out, cusername, filename, client_num, server_num);
             }
 
         }else{
