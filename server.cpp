@@ -93,9 +93,8 @@ int main(int argc, char **argv){
             client_num = received % WINDOW_SIZE + 1;
             server_num = selected % WINDOW_SIZE + 1;
 
-            memset(trace_data, 0, sizeof(trace_data));
             sprintf(trace_data, "negotiated srv %d and cli %d", server_num, client_num);
-            trace(logfile, "SERVER", trace_data);
+            write_log(logfile, "SERVER", trace_data);
 
             // Receive header data from the client
             if(recv_safe(server_socket, sa_out, buffer, RAWBUF_SIZE, 777) == 777){
@@ -107,7 +106,7 @@ int main(int argc, char **argv){
                 // Print out the information
                 memset(trace_data, 0, sizeof(trace_data));
                 sprintf(trace_data, "client %s requesting %s of %s", cusername, direction, filename);
-                trace(logfile, "SERVER", trace_data);
+                write_log(logfile, "SERVER", trace_data);
 
                 // Respond to the client request
                 if(!strcmp(direction,GET)){
