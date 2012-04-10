@@ -51,6 +51,9 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
                     cout << "Error in recv " << recv << endl;
                     nak = offset;
                     break;
+                }else if(packet_id == 101){
+                    fclose(recv_file);
+                    return get(s, sa, username, filename, client_num, server_num, logfile);
                 }
             }
             while(recv_count > 0 || nak >= 0){
@@ -73,6 +76,7 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
         send_packet(s, sa, buffer, FRAME_SIZE, next);
         fclose(recv_file);
     }else{
+        fclose(recv_file);
         return get(s, sa, username, filename, client_num, server_num, logfile);
     }
 }
