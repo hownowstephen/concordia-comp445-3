@@ -124,6 +124,7 @@ int main(int argc, char **argv){
     }
 
     //close server socket and clean up the winsock
+    fclose(logfile);
     closesocket(server_socket);
     WSACleanup();
     return 0;

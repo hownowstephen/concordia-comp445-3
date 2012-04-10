@@ -9,6 +9,7 @@ using namespace std;
 #define TIMEOUT_USEC 300000
 
 void trace(FILE* logfile, char* username, char* message){
+    cout << username << " > " << message << endl;
     fprintf(logfile, "%s > %s", username, message);
 }
 
