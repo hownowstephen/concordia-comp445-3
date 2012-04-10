@@ -110,7 +110,6 @@ int main(void){
             sprintf(buffer,HEADER, cusername, direction, filename); 
             send_packet(client_socket,sa_out,buffer,RAWBUF_SIZE,777);
 
-            exit(0);
             // Perform a get request
             if(!strcmp(direction,GET)){
                 get(client_socket, sa_out, cusername, filename);
