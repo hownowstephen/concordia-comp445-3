@@ -19,9 +19,6 @@ all: sync update
 clean:
 	${RM} $(OBJ) $(BINSRV) $(BINCLI)
 
-sync:
-	git pull origin master
-
 update: server client
 
 client: client.o libraries

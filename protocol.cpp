@@ -55,7 +55,6 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
                     offset = (offset + 1) % expected_size;    
                     recv_count++;
                 }else if(packet_id < 0){
-                    cout << "Error in recv " << recv << endl;
                     nak = offset;
                     break;
                 }else if(packet_id == 101){
