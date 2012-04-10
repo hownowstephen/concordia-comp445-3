@@ -31,11 +31,12 @@ void get(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
         sprintf(tracebuf, "Filesize %d", filesize);
         write_log(logfile, username, tracebuf);
 
-        offset = recv = count = 0;
+        recv = count = 0;
 
         int expected_size = WINDOW_SIZE + 1;
         int recv_count, nak;
-        int next = 0;
+        int next = client_num;
+        int offset = client_num;
         int packet_id;
         // Receive the file
         while(1){
@@ -123,9 +124,9 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
             memset(buffer, 0, sizeof(buffer));
 
             int count = 0;
-            int offset = 0;
+            int offset = client_num;
             int frames_outstanding = 0;
-            int next = 0;
+            int next = client_num;
             bool resend = false;
             int packet_id;
             int pid_max = WINDOW_SIZE + 1;
