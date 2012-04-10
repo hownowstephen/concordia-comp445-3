@@ -14,7 +14,7 @@ BINCLI = client
 BINRT = router
 RM = rm -f
 
-all: sync update
+all: update
 
 clean:
 	${RM} $(OBJ) $(BINSRV) $(BINCLI)
