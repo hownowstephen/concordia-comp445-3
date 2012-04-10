@@ -55,6 +55,7 @@ int main(int argc, char **argv){
             int received, verify;
 
             int progress = 0;
+            int rcv;
 
             while(1){
 
@@ -76,10 +77,13 @@ int main(int argc, char **argv){
                 }
 
                 // Finally wait for a response from the client with the number
-                if(recv_safe(server_socket, sa_out, buffer, RAWBUF_SIZE, 201) == 201){
+                if((rcv = recv_safe(server_socket, sa_out, buffer, RAWBUF_SIZE, 201)) == 201){
                     cout << "Received " << buffer << endl;
                     sscanf(buffer,"RAND %d",&verify);
                     break;
+                }else if(rcv == 200){
+                    progress = 0;
+                    continue;
                 }
             }
 
