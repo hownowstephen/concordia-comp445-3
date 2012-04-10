@@ -141,8 +141,8 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
                 while(frames_outstanding > 0){
                     if((packet_id = recv_packet(s,sa,buffer,FRAME_SIZE,next)) < 0){
                         cout << "Client did not ack/nak packet " << next << " resending..." << endl;
-                        cout << "Total sent so far: " << count << "/" << filesize << endl;
-                        resend = true;
+                        if(count < filesize) resend = true;
+                        else frames_outstanding --;
                         break;
                     }
                     // Receive acknowledgment from the client
