@@ -108,7 +108,9 @@ int main(void){
 
             // Send client headers
             sprintf(buffer,HEADER, cusername, direction, filename); 
-            while(send_safe(client_socket,sa_out,buffer,RAWBUF_SIZE,777) != 777){}
+            while((rcv = send_safe(client_socket,sa_out,buffer,RAWBUF_SIZE,777)) != 777){
+                if(rcv == 101) break;
+            }
 
 
 
