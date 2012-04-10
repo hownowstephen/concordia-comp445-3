@@ -26,7 +26,7 @@ int main(int argc, char **argv){
     char router[11];            // Store the name of the router
     char trace_data[128];
 
-    FILE* logfile = fopen("server.log", "a+");
+    FILE* logfile = fopen("server.log", "w");
      
     try {
         if (WSAStartup(0x0202,&wsadata)!=0){  

@@ -30,7 +30,7 @@ int main(void){
     char cusername[128], filename[128], direction[3];   // Other header data
     DWORD dwusername = sizeof(cusername);               // Retains the size of the username
 
-    FILE* logfile = fopen("client.log", "a+");
+    FILE* logfile = fopen("client.log", "w");
 
     try {
 
