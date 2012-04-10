@@ -67,6 +67,7 @@ int main(void){
             int server_num = 0; // Server packet number
 
             int progress = 0;
+            int rcv;
 
             while(1){
 
@@ -75,7 +76,11 @@ int main(void){
                     memset(buffer, 0, sizeof(buffer));
                     sprintf(buffer,"RAND %d",selected);
                     cout << "Sending " << buffer << endl;
-                    if(send_safe(client_socket, sa_out, buffer, RAWBUF_SIZE, 200) != 200) continue;
+                    if((rcv = send_safe(client_socket, sa_out, buffer, RAWBUF_SIZE, 200)) == 201){
+                        progress = 1;
+                    }else if(rcv != 200){
+                        continue;
+                    }
 
                     // Finally wait for a response from the server with the number
                     if(recv_safe(client_socket, sa_out, buffer, RAWBUF_SIZE, 100) == 100){
