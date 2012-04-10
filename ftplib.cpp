@@ -8,7 +8,7 @@ using namespace std;
 
 #define TIMEOUT_USEC 300000
 
-void trace(FILE* logfile, char* username, const char* message){
+void trace(FILE* logfile, char* username, char* message){
     fprintf(logfile, "%s > %s", username, message);
 }
 
