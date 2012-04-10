@@ -148,7 +148,7 @@ void put(SOCKET s, SOCKADDR_IN sa, char * username, char* filename, int client_n
                     }
                     // Receive acknowledgment from the client
                     cout << "Got " << buffer << " from client" << endl;
-                    if(!strncmp(buffer,"NAK", 3) or strncmp(buffer, "ACK", 3)){
+                    if(!strncmp(buffer,"NAK", 3)){
                         if(packet_id >= 0) next = packet_id;    // Set the next packet id to send
                         break;
                     }else if(!strncmp(buffer,"ALL", 3)){
