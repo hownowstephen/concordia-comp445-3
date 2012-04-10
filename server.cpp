@@ -24,7 +24,7 @@ int main(int argc, char **argv){
     SOCKADDR_IN sa_out;         // fill with router info
     WSADATA wsadata;            // Winsock connection object
     char router[11];            // Store the name of the router
-    char* trace_data;
+    char trace_data[128];
 
     FILE* logfile = fopen("server.log", "a+");
      
