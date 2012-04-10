@@ -93,7 +93,7 @@ int main(int argc, char **argv){
             cout << "Starting with server packet " << server_num << " and client packet " << client_num << endl;
 
             // Receive header data from the client
-            if(recv_packet(server_socket, sa_out, buffer, RAWBUF_SIZE, 777) == 777){
+            if(recv_safe(server_socket, sa_out, buffer, RAWBUF_SIZE, 777) == 777){
 
                 // Extract data from the headers
                 char cusername[128], filename[128], direction[3];
