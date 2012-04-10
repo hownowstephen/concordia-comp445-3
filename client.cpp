@@ -108,7 +108,7 @@ int main(void){
 
             // Send client headers
             sprintf(buffer,HEADER, cusername, direction, filename); 
-            send_packet(client_socket,sa_out,buffer,RAWBUF_SIZE,777);
+            while(send_safe(client_socket,sa_out,buffer,RAWBUF_SIZE,777) != 777){}
 
 
 
