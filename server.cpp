@@ -95,8 +95,6 @@ int main(int argc, char **argv){
             // Receive header data from the client
             if(recv_packet(server_socket, sa_out, buffer, RAWBUF_SIZE, 777) > 0){
 
-                exit(0);
-
                 // Extract data from the headers
                 char cusername[128], filename[128], direction[3];
                 sscanf(buffer,HEADER,cusername,direction,filename);
