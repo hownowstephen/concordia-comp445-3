@@ -9,8 +9,11 @@ using namespace std;
 #define TIMEOUT_USEC 300000
 
 void write_log(FILE* logfile, char* username, char* message){
+    char buffer[256];
+    memset(buffer,0,sizeof(buffer));
     cout << username << " > " << message << endl;
-    fprintf(logfile, "%s > %s", username, message);
+    sprintf(buffer, "%s > %s", username, message);
+    fwrite(buffer, sizeof(buffer), 1, logfile);
 }
 
 /**
