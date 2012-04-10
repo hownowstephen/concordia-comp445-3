@@ -69,6 +69,7 @@ int main(int argc, char **argv){
                     memset(buffer, 0, sizeof(buffer));
                     sprintf(buffer,"RAND %d %d",received,selected);
                     if(send_safe(server_socket, sa_out, buffer, RAWBUF_SIZE, 100) != 100){
+                        cout << "Sent " << buffer << endl;
                         continue;
                     }
                     progress = 1;

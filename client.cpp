@@ -89,7 +89,10 @@ int main(void){
                 memset(buffer, 0, sizeof(buffer));
                 sprintf(buffer,"RAND %d",received);
                 cout << "Sending " << buffer << endl;
-                if(send_safe(client_socket, sa_out, buffer, RAWBUF_SIZE, 201) != 201) continue;
+                if(send_safe(client_socket, sa_out, buffer, RAWBUF_SIZE, 201) != 201){
+                    progress = 0;
+                    continue;
+                } 
                 break;
             }
 
