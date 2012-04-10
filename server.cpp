@@ -106,7 +106,7 @@ int main(int argc, char **argv){
 
                 // Print out the information
                 memset(trace_data, 0, sizeof(trace_data));
-                sprintf(trace_data, "client %s requesting %s of %s", cusername, direction, filename)
+                sprintf(trace_data, "client %s requesting %s of %s", cusername, direction, filename);
                 trace(logfile, "SERVER", trace_data);
 
                 // Respond to the client request
